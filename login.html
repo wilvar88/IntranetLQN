@@ -279,7 +279,7 @@
                     // Asegurar que 'perfil' esté seteado para compatibilidad
                     if (user.rol && !user.perfil) user.perfil = user.rol;
                     localStorage.setItem('currentUser', JSON.stringify(user));
-                    window.location.href = 'Index.html';
+                    window.location.href = 'index.html';
                 } else {
                     errorElement.style.display = 'block';
                     errorElement.textContent = "Contraseña incorrecta. Por favor intenta de nuevo.";
