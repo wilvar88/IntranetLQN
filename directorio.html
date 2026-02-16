@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet LQN - Directorio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #e90085;
+            --bg-body: #fdf2f8;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --shadow: 0 8px 32px 0 rgba(233, 0, 133, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--bg-body);
+            color: #2d3436;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        .glass-effect {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        header {
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            margin: 0 20px;
+        }
+
+        .navbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #2d3436;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .search-container {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px 25px;
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass);
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .directory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .collab-card {
+            padding: 25px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .collab-card:hover {
+            transform: translateY(-5px);
+            background: white;
+        }
+
+        .collab-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            background: #eee;
+            margin: 0;
+            object-fit: cover;
+        }
+
+        .collab-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .collab-role {
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .collab-info {
+            font-size: 0.8rem;
+            color: #636e72;
+            list-style: none;
+            text-align: left;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .collab-info li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .avatar-placeholder {
+            background: linear-gradient(135deg, var(--primary), #e90085);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        /* Detail Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .details-modal {
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 40px;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-overlay.active .details-modal {
+            transform: scale(1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .detail-item {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 10px;
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: #636e72;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #2d3436;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar glass-effect">
+            <div class="logo"><img src="LQN.png" alt="Logo LQN" style="height: 30px; margin-right: 10px;"> LQN</div>
+            <ul class="nav-links">
+                <li><a href="Index.html">Inicio</a></li>
+                <li><a href="recursos.html">Talento Humano</a></li>
+                <li><a href="recursos.html">Recursos</a></li>
+                <li><a href="recursos.html">Departamentos</a></li>
+                <li><a href="directorio.html" class="active">Directorio</a></li>
+            </ul>
+            <div class="user-profile" style="display: flex; align-items: center; gap: 15px;">
+                <div class="user-avatar" id="userAvatarContainer"
+                    style="width: 40px; height: 40px; background: var(--primary); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 600; overflow: hidden;">
+                    <img id="userAvatarImg" src=""
+                        style="width: 100%; height: 100%; border-radius: 12px; display: none; object-fit: cover;">
+                    <span id="userInitial">U</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h1 style="color: var(--primary);">Directorio de Colaboradores</h1>
+            <div id="adminPanel" style="display: none;">
+                <label for="excelUpload" class="glass-effect"
+                    style="padding: 10px 20px; cursor: pointer; color: var(--primary); font-weight: 600; font-size: 0.9rem;">
+                    <i class="fa-solid fa-file-excel"></i> Actualizar Base (Excel)
+                </label>
+                <input type="file" id="excelUpload" accept=".xlsx, .xls" style="display: none;">
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Buscar por nombre, cargo o área...">
+        </div>
+
+        <div id="uploadStatus" style="margin-bottom: 20px; font-size: 0.9rem; display: none;" class="glass-effect">
+            <div
+                style="padding: 15px; border-radius: 12px; background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.2);">
+                <i class="fa-solid fa-circle-check"></i> <span id="statusText">Datos actualizados correctamente</span>
+            </div>
+        </div>
+
+        <div class="directory-grid" id="directoryGrid">
+            <!-- Collabs will be rendered here -->
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="detailModalOverlay">
+        <div class="details-modal glass-effect">
+            <i class="fa-solid fa-xmark close-modal" onclick="closeModal()"></i>
+            <div style="text-align: center; margin-bottom: 25px;">
+                <div id="modalAvatarContainer"
+                    style="width: 120px; height: 120px; margin: 0 auto 15px; border-radius: 15px; overflow: hidden; background: #eee;">
+                    <img id="modalAvatarImg" src="" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div id="modalAvatarPlaceholder" class="avatar-placeholder"
+                        style="width: 100%; height: 100%; font-size: 3rem; display: none;"></div>
+                </div>
+                <h2 id="modalName" style="color: var(--primary);">Nombre Completo</h2>
+                <p id="modalCargo" style="font-weight: 600; color: #636e72;">Cargo</p>
+            </div>
+
+            <div class="detail-grid" id="modalDetailGrid">
+                <div class="detail-item">
+                    <div class="detail-label">Género</div>
+                    <div class="detail-value" id="modalGenero">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Fecha de Ingreso</div>
+                    <div class="detail-value" id="modalIngreso">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Fecha de Nacimiento</div>
+                    <div class="detail-value" id="modalCumple">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Edad</div>
+                    <div class="detail-value" id="modalEdad">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Grupo Sanguíneo</div>
+                    <div class="detail-value" id="modalSangre">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Ciudad</div>
+                    <div class="detail-value" id="modalCiudad">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Correo</div>
+                    <div class="detail-value" id="modalEmail">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Celular</div>
+                    <div class="detail-value" id="modalCelular">-</div>
+                </div>
+                <div class="detail-item" style="grid-column: span 2;">
+                    <div class="detail-label">Pasivo Vacacional</div>
+                    <div class="detail-value" id="modalPasivo" style="color: var(--primary); font-size: 1.2rem;">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('currentUser'));
+        if (!user) {
+            window.location.href = 'login.html';
+        }
+
+        function updateNavbar() {
+            document.getElementById('userInitial').textContent = user.nombre.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            const avatarImg = document.getElementById('userAvatarImg');
+            const initialSpan = document.getElementById('userInitial');
+            const imgPath = user.foto_id ? `https://lh3.googleusercontent.com/d/${user.foto_id}` : `images/${user.documento}.png`;
+
+            avatarImg.src = imgPath;
+            avatarImg.onload = () => {
+                avatarImg.style.display = 'block';
+                initialSpan.style.display = 'none';
+            };
+            avatarImg.onerror = () => {
+                avatarImg.style.display = 'none';
+                initialSpan.style.display = 'block';
+            };
+        }
+
+        updateNavbar();
+
+        if (user.perfil === "Gestión Humana") {
+            document.getElementById('adminPanel').style.display = 'block';
+        }
+
+        // URL de tu Google Sheet (Publicado como CSV)
+        const MASTER_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4dxNMqKVluRPiD6L-5OYPJUzYH4l87FRufvNS8BLWHfG6rSvB9y47uWOVnYDvRg/pub?output=csv";
+
+        let colaboradores = [];
+
+        // Función para convertir CSV a JSON (Resistente a mayúsculas y flexible)
+        function parseCSV(csvText) {
+            csvText = csvText.replace(/^\uFEFF/, '').trim();
+            const lines = csvText.split(/\r?\n/);
+            if (lines.length < 2) return [];
+
+            const sep = lines[0].includes(';') ? ';' : ',';
+            const headers = lines[0].split(sep).map(h => h.trim().toLowerCase());
+
+            return lines.slice(1).map(line => {
+                const values = line.split(sep);
+                let obj = {};
+                headers.forEach((header, i) => {
+                    let key = header;
+                    if (key === "correo") key = "email";
+                    if (key === "rol") key = "perfil";
+                    if (key === "contraseña") key = "password";
+                    if (key === "celular") key = "extension";
+                    if (key === "fecha nacimiento" || key === "nacimiento") key = "cumple";
+
+                    let val = (values[i] || "").replace(/^"|"$/g, '').trim();
+                    if (key === "foto" || key === "fotografía" || key === "imagen" || key === "link foto") {
+                        if (val.includes('/d/')) {
+                            obj["foto_id"] = val.split('/d/')[1].split('/')[0];
+                        } else if (val && val !== "-" && val !== "N/A") {
+                            obj["foto_id"] = val;
+                        }
+                    } else {
+                        if (key === "género" || key === "genero") key = "genero";
+                        if (key === "fecha ingreso" || key === "ingreso" || key === "fecha de ingreso") key = "ingreso";
+                        if (key === "grupo sanguíneo" || key === "grupo sanguineo") key = "grupo_sanguineo";
+                        if (key === "pasivo vacacional" || key === "dias de vacaciones" || key === "días de vacaciones") key = "pasivo_vacacional";
+                        if (key === "edad") key = "edad";
+
+                        obj[key] = val;
+                    }
+                });
+                return obj;
+            }).filter(u => u.documento);
+        }
+
+        // Helper para formatear fechas (DD/M/YYYY -> DD/MM/YYYY)
+        function formatDate(str) {
+            if (!str || str === "-" || str === "N/A") return "-";
+            const parts = str.split('/');
+            if (parts.length === 3) {
+                const day = parts[0].padStart(2, '0');
+                const month = parts[1].padStart(2, '0');
+                const year = parts[2];
+                return `${day}/${month}/${year}`;
+            }
+            return str;
+        }
+
+        async function loadDirectory() {
+            // Priority 1: Instant cache
+            const cached = localStorage.getItem('master_cache');
+            if (cached) {
+                colaboradores = JSON.parse(cached);
+                renderDirectory(colaboradores);
+            }
+
+            // Priority 2: Sync with Master URL
+            if (MASTER_DATA_URL) {
+                try {
+                    const response = await fetch(MASTER_DATA_URL);
+                    const csvText = await response.text();
+                    const masterData = parseCSV(csvText);
+
+                    if (masterData.length > 0) {
+                        colaboradores = masterData;
+                        localStorage.setItem('master_cache', JSON.stringify(colaboradores));
+                        renderDirectory(colaboradores);
+
+                        // Update current user if needed
+                        const me = colaboradores.find(u => String(u.documento) === String(user.documento));
+                        if (me) {
+                            localStorage.setItem('currentUser', JSON.stringify(me));
+                            updateNavbar();
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Sync slow/fail", e);
+                    // Fallback to local json if cache and master fail
+                    if (!colaboradores.length) {
+                        try {
+                            const localRes = await fetch('data/colaboradores.json');
+                            colaboradores = await localRes.json();
+                            renderDirectory(colaboradores);
+                        } catch (err) { console.error("Total fail", err); }
+                    }
+                }
+            }
+        }
+
+        // --- EXCEL LOGIC ---
+        document.getElementById('excelUpload').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                // Mapear campos del Excel a nuestro JSON
+                const formattedData = jsonData.map(row => ({
+                    documento: String(row["Documento"] || ""),
+                    nombre: row["Nombre"] || "",
+                    cargo: row["Cargo"] || "",
+                    perfil: row["Perfil"] || "Colaborador",
+                    area: row["Ciudad"] || "Principal", // Usando ciudad como area o ajustar segun necesidad
+                    email: row["Correo"] || "",
+                    extension: row["Celular"] || "", // O un campo de extension real
+                    cumple: row["Fecha Nacimiento"] || ""
+                }));
+
+                if (formattedData.length > 0) {
+                    colaboradores = formattedData;
+                    localStorage.setItem('updatedColaboradores', JSON.stringify(colaboradores));
+                    renderDirectory(colaboradores);
+
+                    const status = document.getElementById('uploadStatus');
+                    status.style.display = 'block';
+                    setTimeout(() => status.style.display = 'none', 5000);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function renderDirectory(list) {
+            const grid = document.getElementById('directoryGrid');
+            grid.innerHTML = '';
+            list.forEach((c, index) => {
+                const fotoPath = c.foto_id ? `https://lh3.googleusercontent.com/d/${c.foto_id}` : `images/${c.documento}.png`;
+                const initials = c.nombre.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                const userArea = c.area || c.ciudad || "Principal";
+                const userContact = c.extension || c.celular || "N/A";
+                const isHR = user.perfil === "Gestión Humana";
+
+                grid.innerHTML += `
+                    <div class="collab-card glass-effect" ${isHR ? `onclick="showDetail(${index})"` : ''} style="${isHR ? 'cursor: pointer;' : ''}">
+                        <div class="collab-img-container" style="width:100%; height:320px; position:relative; overflow:hidden; border-radius:15px; background:#f0f0f0;">
+                            <img src="${fotoPath}" class="collab-img" loading="lazy" 
+                                 onload="this.style.opacity=1" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <div class="avatar-placeholder" style="display:none; width:100%; height:100%; font-size:4rem; border-radius:15px;">${initials}</div>
+                        </div>
+                        <p class="collab-name" style="margin-top:15px;">${c.nombre}</p>
+                        <p class="collab-role">${c.cargo}</p>
+                        <ul class="collab-info">
+                            <li><i class="fa-solid fa-building"></i> ${userArea}</li>
+                            <li><i class="fa-solid fa-envelope"></i> ${c.email || c.correo}</li>
+                            <li><i class="fa-solid fa-mobile-screen"></i> ${userContact}</li>
+                        </ul>
+                    </div>
+                `;
+            });
+        }
+
+        // --- DETALLE MODAL LOGIC ---
+        let currentList = []; // Para trackear la lista actual filtrada
+
+        function showDetail(index) {
+            const listToUse = document.getElementById('searchInput').value.trim() ? lastFilteredList : colaboradores;
+            const c = listToUse[index];
+            if (!c) return;
+
+            document.getElementById('modalName').textContent = c.nombre;
+            document.getElementById('modalCargo').textContent = c.cargo || "Colaborador";
+            document.getElementById('modalGenero').textContent = c.genero || "-";
+            document.getElementById('modalIngreso').textContent = formatDate(c.ingreso);
+            document.getElementById('modalCumple').textContent = formatDate(c.cumple || c.cumpleaños);
+            document.getElementById('modalEdad').textContent = c.edad || "-";
+            document.getElementById('modalSangre').textContent = c.grupo_sanguineo || "-";
+            document.getElementById('modalCiudad').textContent = c.area || c.ciudad || "-";
+            document.getElementById('modalEmail').textContent = c.email || c.correo || "-";
+            document.getElementById('modalCelular').textContent = c.extension || c.celular || "-";
+            document.getElementById('modalPasivo').textContent = (c.pasivo_vacacional || "0") + " días";
+
+            const fotoPath = c.foto_id ? `https://lh3.googleusercontent.com/d/${c.foto_id}` : `images/${c.documento}.png`;
+            const initials = c.nombre.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            const img = document.getElementById('modalAvatarImg');
+            const placeholder = document.getElementById('modalAvatarPlaceholder');
+
+            img.src = fotoPath;
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+            placeholder.textContent = initials;
+
+            img.onerror = () => {
+                img.style.display = 'none';
+                placeholder.style.display = 'flex';
+            };
+
+            document.getElementById('detailModalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModalOverlay').classList.remove('active');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('detailModalOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'detailModalOverlay') closeModal();
+        });
+
+        let lastFilteredList = [];
+
+        loadDirectory();
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase().trim();
+            lastFilteredList = colaboradores.filter(c => {
+                const initials = c.nombre.split(' ').map(n => n[0]).join('').toLowerCase();
+                const fullName = c.nombre.toLowerCase();
+                const cargo = (c.cargo || "").toLowerCase();
+                const area = (c.area || c.ciudad || "").toLowerCase();
+
+                return fullName.includes(val) ||
+                    cargo.includes(val) ||
+                    area.includes(val) ||
+                    initials.includes(val);
+            });
+            renderDirectory(lastFilteredList);
+        });
+    </script>
+</body>
+
+</html>

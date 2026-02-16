@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet LQN - Recursos y Documentos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #e90085;
+            --bg-body: #fdf2f8;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --shadow: 0 8px 32px 0 rgba(233, 0, 133, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--bg-body);
+            color: #2d3436;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        .glass-effect {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        header {
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            margin: 0 20px;
+        }
+
+        .navbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #2d3436;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .resource-section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .doc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .doc-card {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .doc-card:hover {
+            background: white;
+            transform: scale(1.02);
+        }
+
+        .doc-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            opacity: 0.8;
+        }
+
+        .doc-info h4 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .doc-info p {
+            font-size: 0.8rem;
+            color: #636e72;
+        }
+
+        .hr-only {
+            display: none;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar glass-effect">
+            <div class="logo"><img src="LQN.png" alt="Logo LQN" style="height: 30px; margin-right: 10px;"> LQN</div>
+            <ul class="nav-links">
+                <li><a href="Index.html">Inicio</a></li>
+                <li><a href="recursos.html" class="active">Talento Humano</a></li>
+                <li><a href="recursos.html">Recursos</a></li>
+                <li><a href="recursos.html">Departamentos</a></li>
+                <li class="hr-only" id="navDirectorio"><a href="directorio.html">Directorio</a></li>
+            </ul>
+            <div class="user-profile" style="display: flex; align-items: center; gap: 15px;">
+                <div class="user-avatar" id="userAvatarContainer"
+                    style="width: 40px; height: 40px; background: var(--primary); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 600; overflow: hidden;">
+                    <img id="userAvatarImg" src=""
+                        style="width: 100%; height: 100%; border-radius: 12px; display: none; object-fit: cover;">
+                    <span id="userInitial">U</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1 style="margin-bottom: 30px; color: var(--primary);">Centro de Documentos y Recursos</h1>
+
+        <div class="resource-section">
+            <div class="section-header">
+                <i class="fa-solid fa-people-group fa-2x"></i>
+                <h2>Talento Humano</h2>
+            </div>
+            <div class="doc-grid">
+                <div class="doc-card glass-effect" onclick="window.open('https://drive.google.com/sample1', '_blank')">
+                    <i class="fa-solid fa-file-pdf doc-icon"></i>
+                    <div class="doc-info">
+                        <h4>Manual del Empleado</h4>
+                        <p>Políticas y normas de la compañía</p>
+                    </div>
+                </div>
+                <div class="doc-card glass-effect" onclick="window.open('https://drive.google.com/sample2', '_blank')">
+                    <i class="fa-solid fa-file-signature doc-icon"></i>
+                    <div class="doc-info">
+                        <h4>Beneficios 2026</h4>
+                        <p>Seguros, convenios y descuentos</p>
+                    </div>
+                </div>
+                <div class="doc-card glass-effect" onclick="window.open('https://drive.google.com/sample3', '_blank')">
+                    <i class="fa-solid fa-calendar-alt doc-icon"></i>
+                    <div class="doc-info">
+                        <h4>Calendario Laboral</h4>
+                        <p>Festivos y eventos corporativos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="resource-section">
+            <div class="section-header">
+                <i class="fa-solid fa-folder-open fa-2x"></i>
+                <h2>Procesos y Plantillas</h2>
+            </div>
+            <div class="doc-grid">
+                <div class="doc-card glass-effect" onclick="window.open('https://drive.google.com/sample4', '_blank')">
+                    <i class="fa-solid fa-file-powerpoint doc-icon" style="color: #d24726;"></i>
+                    <div class="doc-info">
+                        <h4>Plantilla Presentaciones</h4>
+                        <p>Branding oficial LQN</p>
+                    </div>
+                </div>
+                <div class="doc-card glass-effect" onclick="window.open('https://drive.google.com/sample5', '_blank')">
+                    <i class="fa-solid fa-file-word doc-icon" style="color: #2b579a;"></i>
+                    <div class="doc-info">
+                        <h4>Carta Institucional</h4>
+                        <p>Plantilla para comunicados</p>
+                    </div>
+                </div>
+                <div class="doc-card glass-effect"
+                    onclick="window.open('https://docs.google.com/document/d/1cmhOjLxcOBclOpPQKUbb3s4mDI_hm5Eu/edit?usp=drive_link&ouid=115862585593172006019&rtpof=true&sd=true', '_blank')">
+                    <i class="fa-solid fa-file-word doc-icon" style="color: #2b579a;"></i>
+                    <div class="doc-info">
+                        <h4>Membrete</h4>
+                        <p>Plantilla para comunicados</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <script>
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                if (!user) { window.location.href = 'login.html'; }
+
+                const MASTER_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4dxNMqKVluRPiD6L-5OYPJUzYH4l87FRufvNS8BLWHfG6rSvB9y47uWOVnYDvRg/pub?output=csv";
+
+                function updateNavbar() {
+                    document.getElementById('userInitial').textContent = user.nombre.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+                    const avatarImg = document.getElementById('userAvatarImg');
+                    const initialSpan = document.getElementById('userInitial');
+                    const imgPath = user.foto_id ? `https://lh3.googleusercontent.com/d/${user.foto_id}` : `images/${user.documento}.png`;
+
+                    avatarImg.src = imgPath;
+                    avatarImg.onload = () => {
+                        avatarImg.style.display = 'block';
+                        initialSpan.style.display = 'none';
+                    };
+                    avatarImg.onerror = () => {
+                        avatarImg.style.display = 'none';
+                        initialSpan.style.display = 'block';
+                    };
+                }
+
+                updateNavbar();
+
+                if (user.perfil === "Gestión Humana") {
+                    document.getElementById('navDirectorio').style.display = 'block';
+                }
+
+                // Sincronización mínima para mantener la foto de perfil al día
+                async function syncProfile() {
+                    if (!MASTER_DATA_URL) return;
+                    try {
+                        const response = await fetch(MASTER_DATA_URL);
+                        const csvText = await response.text();
+                        // Reutilizar el parser si es necesario o un mini-parser para el perfil
+                        const lines = csvText.split(/\r?\n/).filter(l => l.trim());
+                        const headers = lines[0].split(lines[0].includes(';') ? ';' : ',').map(h => h.trim().toLowerCase());
+                        const fotoIdx = headers.findIndex(h => h.includes('foto') || h.includes('imagen'));
+                        const docIdx = headers.indexOf('documento');
+
+                        if (fotoIdx !== -1 && docIdx !== -1) {
+                            const myLine = lines.find(l => l.split(lines[0].includes(';') ? ';' : ',')[docIdx] === String(user.documento));
+                            if (myLine) {
+                                let rawVal = myLine.split(lines[0].includes(';') ? ';' : ',')[fotoIdx].trim().replace(/^"|"$/g, '');
+                                if (rawVal.includes('/d/')) {
+                                    user.foto_id = rawVal.split('/d/')[1].split('/')[0];
+                                } else if (rawVal && rawVal !== "-") {
+                                    user.foto_id = rawVal;
+                                }
+                                localStorage.setItem('currentUser', JSON.stringify(user));
+                                updateNavbar();
+                            }
+                        }
+                    } catch (e) { console.warn("Sync failed", e); }
+                }
+                syncProfile();
+            </script>
+</body>
+
+</html>

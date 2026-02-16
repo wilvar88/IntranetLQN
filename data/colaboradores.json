@@ -1,0 +1,24 @@
+[
+	{
+		"documento": "1069432843",
+		"nombre": "Juan Pérez",
+		"perfil": "Colaborador",
+		"area": "Operaciones",
+		"cargo": "Analista de Procesos",
+		"email": "juan.perez@lqn.com",
+		"extension": "101",
+		"cumple": "15 de Marzo",
+		"dias_vacaciones": 12
+	},
+	{
+		"documento": "1024553483",
+		"nombre": "Valeria Hernandez",
+		"perfil": "Gestión Humana",
+		"area": "Recursos Humanos",
+		"cargo": "Líder de Talento",
+		"email": "valeria.hernandez@lqn.com",
+		"extension": "202",
+		"cumple": "24 de Marzo",
+		"dias_vacaciones": 15
+	}
+]

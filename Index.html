@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet LQN - Inicio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #e90085;
+            --primary-light: #ff33a3;
+            --bg-body: #fdf2f8;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-card: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --text-dark: #2d3436;
+            --text-light: #636e72;
+            --shadow: 0 8px 32px 0 rgba(233, 0, 133, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--bg-body);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(233, 0, 133, 0.1) 0, transparent 50%),
+                radial-gradient(at 50% 0%, rgba(255, 255, 255, 1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(233, 0, 133, 0.1) 0, transparent 50%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        .glass-effect {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        header {
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            margin: 0 20px;
+        }
+
+        .birthday-avatar,
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), #e90085);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .navbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 400;
+            font-size: 0.95rem;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 30px;
+            padding: 0 20px;
+        }
+
+        .carousel-container {
+            position: relative;
+            height: 400px;
+            border-radius: 24px;
+            overflow: hidden;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+        }
+
+        .carousel-slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+        }
+
+        .carousel-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 40px;
+            color: white;
+        }
+
+        .carousel-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .carousel-desc {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .carousel-nav {
+            position: absolute;
+            bottom: 20px;
+            right: 40px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .carousel-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .carousel-dot.active {
+            background: white;
+            width: 30px;
+            border-radius: 10px;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .link-card {
+            background: var(--glass-card);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--glass-border);
+            padding: 25px 15px;
+            border-radius: 20px;
+            text-align: center;
+            transition: 0.3s ease;
+            cursor: pointer;
+        }
+
+        .link-card:hover {
+            transform: translateY(-5px);
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 10px 20px rgba(233, 0, 133, 0.1);
+        }
+
+        .link-card i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .link-card p {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .news-img {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 16px;
+            margin: 10px;
+        }
+
+        .news-content {
+            padding: 20px;
+        }
+
+        .news-tag {
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .widget {
+            padding: 24px;
+        }
+
+        .widget h3 {
+            font-size: 1rem;
+            margin-bottom: 18px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 10px;
+        }
+
+        .user-menu {
+            list-style: none;
+        }
+
+        .user-menu li {
+            padding: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .user-menu li:hover {
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .logout-btn {
+            margin-top: 10px;
+            color: #ff4d4d !important;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        .hr-only {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar glass-effect">
+            <div class="logo">
+                <img src="LQN.png" alt="Logo LQN" style="height: 40px;"> LQN
+            </div>
+            <ul class="nav-links">
+                <li><a href="Index.html" class="active">Inicio</a></li>
+                <li><a href="recursos.html">Talento Humano</a></li>
+                <li><a href="recursos.html">Recursos</a></li>
+                <li><a href="recursos.html">Departamentos</a></li>
+                <li class="hr-only" id="navDirectorio"><a href="directorio.html">Directorio</a></li>
+            </ul>
+            <div id="btnSoporte" class="glass-effect"
+                style="padding: 10px 20px; cursor: pointer; color: var(--primary); font-weight: 600; font-size: 0.9rem; margin: 0 15px;">
+                <i class="fa-solid fa-headset"></i> Soporte
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatarContainer">
+                    <img id="userAvatarImg" src=""
+                        style="width: 100%; height: 100%; border-radius: 12px; display: none; object-fit: cover;">
+                    <span id="userInitial">U</span>
+                </div>
+                <div class="user-info" style="font-size: 0.85rem;">
+                    <strong id="userName">Usuario</strong><br>
+                    <small id="userArea">Área</small>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <main class="main-content">
+            <div class="carousel-container">
+                <div class="carousel-slide active"
+                    style="background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80')">
+                    <div class="carousel-overlay">
+                        <span class="news-tag">Estrategia</span>
+                        <h2 class="carousel-title">Lanzamiento 2026</h2>
+                        <p class="carousel-desc">Descubre nuestros nuevos objetivos para este gran año.</p>
+                    </div>
+                </div>
+                <div class="carousel-slide"
+                    style="background-image: url('https://images.unsplash.com/photo-1522071820081-003f01730b17?auto=format&fit=crop&w=1200&q=80')">
+                    <div class="carousel-overlay">
+                        <span class="news-tag">Cultura</span>
+                        <h2 class="carousel-title">Nuestra Gente</h2>
+                        <p class="carousel-desc">Conoce a los nuevos talentos que se unen al equipo.</p>
+                    </div>
+                </div>
+                <div class="carousel-nav">
+                    <div class="carousel-dot active"></div>
+                    <div class="carousel-dot"></div>
+                </div>
+            </div>
+
+            <h2 class="section-title"><i class="fa-solid fa-bolt"></i> Accesos Rápidos</h2>
+            <div class="quick-links">
+                <div class="link-card" onclick="alert('Sección en construcción - Usar links de Drive reales pronto')">
+                    <i class="fa-solid fa-envelope"></i>
+                    <p>Webmail</p>
+                </div>
+                <div class="link-card" id="quickVacaciones">
+                    <i class="fa-solid fa-umbrella-beach"></i>
+                    <p>Solicitudes de Ausencia</p>
+                </div>
+                <div class="link-card" onclick="alert('Sección en construcción')">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <p>Nómina</p>
+                </div>
+                <div class="link-card" id="quickSoporte">
+                    <i class="fa-solid fa-laptop-medical"></i>
+                    <p>Mesa Ayuda</p>
+                </div>
+            </div>
+
+            <h2 class="section-title"><i class="fa-solid fa-newspaper"></i> Noticias Recientes</h2>
+            <div class="news-grid">
+                <div class="news-card glass-effect">
+                    <div class="news-img"
+                        style="background-image: url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=600&q=80')">
+                    </div>
+                    <div class="news-content">
+                        <span class="news-tag">Corporativo</span>
+                        <h3>Resultados Q3 Superados</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-light);">Hemos logrado un crecimiento del 15%
+                            gracias a todos.</p>
+                    </div>
+                </div>
+                <div class="news-card glass-effect">
+                    <div class="news-img"
+                        style="background-image: url('https://images.unsplash.com/photo-1573497620053-ea5300f94f21?auto=format&fit=crop&w=600&q=80')">
+                    </div>
+                    <div class="news-content">
+                        <span class="news-tag">Bienestar</span>
+                        <h3>Convenio Gimnasios</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-light);">Nuevos descuentos en FitLife para tu
+                            bienestar.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <aside class="sidebar">
+            <div class="widget glass-effect">
+                <h3 style="color: var(--primary); margin-bottom: 15px;">
+                    <i class="fa-solid fa-cake-candles"></i> Próximos Cumpleaños
+                </h3>
+                <div id="birthdayList">
+                    <p style="font-size: 0.8rem; opacity: 0.6; text-align: center; padding: 10px;">Cargando...</p>
+                </div>
+            </div>
+
+            <div class="widget glass-effect">
+                <h3 style="color: var(--primary); margin-bottom: 15px;">
+                    <i class="fa-solid fa-umbrella-beach"></i> Mis Vacaciones Disponibles
+                </h3>
+                <div style="text-align: center; padding: 10px;">
+                    <h2 id="sidebarSaldo" style="color: var(--primary); font-size: 2.2rem; font-weight: 600;">--</h2>
+                    <p style="font-size: 0.8rem; color: var(--text-light);">Días totales acumulados</p>
+                </div>
+            </div>
+
+            <div class="widget glass-effect">
+                <h3>Mi Espacio</h3>
+                <ul class="user-menu">
+                    <li><i class="fa-solid fa-calendar"></i> Mis Eventos</li>
+                    <li><i class="fa-solid fa-book"></i> Mis Cursos</li>
+                    <li><i class="fa-solid fa-gear"></i> Configuración</li>
+                    <li onclick="logout()" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar
+                        Sesión</li>
+                </ul>
+            </div>
+
+        </aside>
+    </div>
+
+    <!-- --- MODALS --- -->
+    <style>
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 500px;
+            padding: 35px;
+            position: relative;
+            animation: modalIn 0.3s ease-out;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-title {
+            color: var(--primary);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .dept-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .dept-btn {
+            padding: 20px 10px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-card);
+        }
+
+        .dept-btn:hover {
+            background: white;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .dept-btn i {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.5);
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .birthday-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-radius: 12px;
+            transition: 0.3s;
+            margin-bottom: 5px;
+        }
+
+        .birthday-item:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .birthday-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            object-fit: cover;
+        }
+
+        .birthday-info h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: var(--text-dark);
+        }
+
+        .birthday-info p {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .birthday-today {
+            background: rgba(233, 0, 133, 0.1) !important;
+            border: 1px solid rgba(233, 0, 133, 0.3);
+        }
+
+        .birthday-today h4::after {
+            content: ' 🎉';
+        }
+    </style>
+
+    <!-- Modal Soporte -->
+    <div id="modalSoporte" class="modal-overlay">
+        <div class="modal-card glass-effect">
+            <span class="close-modal" id="closeSoporte">&times;</span>
+            <h2 class="modal-title"><i class="fa-solid fa-ticket"></i> Crear Ticket de Soporte</h2>
+
+            <div id="soporteStep1" class="step-container">
+                <p style="font-size: 0.9rem; margin-bottom: 10px;">¿Con qué departamento necesitas ayuda?</p>
+                <div class="dept-grid">
+                    <div class="dept-btn" onclick="openStep2('TI')">
+                        <i class="fa-solid fa-laptop"></i> TI
+                    </div>
+                    <div class="dept-btn" onclick="openStep2('RRHH')">
+                        <i class="fa-solid fa-users"></i> RRHH
+                    </div>
+                    <div class="dept-btn" onclick="openStep2('Manto')">
+                        <i class="fa-solid fa-wrench"></i> Manto.
+                    </div>
+                </div>
+            </div>
+
+            <div id="soporteStep2" class="step-container" style="display: none;">
+                <button onclick="backToStep1()"
+                    style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.8rem; margin-bottom: 10px;">
+                    <i class="fa-solid fa-arrow-left"></i> Volver
+                </button>
+                <form id="ticketForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label>Nombre Completo</label>
+                            <input type="text" id="ticketNombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Documento</label>
+                            <input type="text" id="ticketDoc" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Correo Electrónico</label>
+                        <input type="email" id="ticketEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Asunto / Incidente</label>
+                        <select id="incidentSel" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Detalle del requerimiento</label>
+                        <textarea id="ticketDetail" rows="3" placeholder="Describe brevemente el problema..."
+                            required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Adjuntar evidencia (Opcional)</label>
+                        <input type="file" id="ticketFile">
+                    </div>
+                    <button type="submit" class="btn-submit">Enviar Requerimiento</button>
+                </form>
+            </div>
+
+            <div id="soporteSuccess" class="step-container" style="display: none; text-align: center;">
+                <i class="fa-solid fa-circle-check fa-4x" style="color: #2ecc71; margin-bottom: 20px;"></i>
+                <h3>¡Ticket Creado!</h3>
+                <p style="margin: 15px 0;">Tu número de radicado es:</p>
+                <h2 id="radicadoNum"
+                    style="background: white; padding: 10px; border-radius: 10px; border: 2px dashed var(--primary);">
+                    #0000</h2>
+                <button onclick="closeSoporteModal()" class="btn-submit"
+                    style="background: var(--text-dark);">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ausencias -->
+    <div id="modalVacaciones" class="modal-overlay">
+        <div class="modal-card glass-effect">
+            <span class="close-modal" id="closeVacaciones">&times;</span>
+            <h2 class="modal-title"><i class="fa-solid fa-calendar-check"></i> Solicitud de Ausencia</h2>
+
+            <div class="vacation-badge">
+                <p style="font-size: 0.8rem; color: var(--text-light);">Saldo Vacaciones</p>
+                <h3 id="saldoDias" style="color: var(--primary); font-size: 1.8rem;">15 Días</h3>
+            </div>
+
+            <form id="vacationForm">
+                <div class="form-group">
+                    <label>Motivo de la Ausencia</label>
+                    <select id="vacMotivo" required>
+                        <option value="" disabled selected>Selecciona un motivo...</option>
+                        <option value="Vacaciones">Vacaciones</option>
+                        <option value="Licencia de Luto">Licencia de Luto</option>
+                        <option value="Licencia de Paternidad">Licencia de Paternidad</option>
+                        <option value="Licencia de Maternidad">Licencia de Maternidad</option>
+                        <option value="Licencia Remunerada">Licencia Remunerada</option>
+                        <option value="Licencia No Remunerada">Licencia No Remunerada</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Desde</label>
+                        <input type="date" id="vacStart" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Hasta</label>
+                        <input type="date" id="vacEnd" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>¿Quién te cubre?</label>
+                    <input type="text" id="vacBackup" placeholder="Nombre del compañero" required>
+                </div>
+                <div class="form-group">
+                    <label>Comentarios</label>
+                    <textarea id="vacNotes" rows="2" placeholder="Notas adicionales..."></textarea>
+                </div>
+                <div id="vacSummary"
+                    style="font-size: 0.8rem; margin-bottom: 15px; display: none; color: var(--primary); font-weight: 600;">
+                    Te tomarás <span id="daysCount">0</span> días. Regresas el <span id="returnDate">--</span>.
+                </div>
+                <button type="submit" class="btn-submit">Enviar Solicitud</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // URL de tu Google Sheet (Publicado como CSV)
+        const MASTER_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4dxNMqKVluRPiD6L-5OYPJUzYH4l87FRufvNS8BLWHfG6rSvB9y47uWOVnYDvRg/pub?output=csv";
+
+        let user = JSON.parse(localStorage.getItem('currentUser'));
+        if (!user) {
+            window.location.href = 'login.html';
+        }
+
+        // Función para convertir CSV a JSON (Resistente a mayúsculas y flexible)
+        function parseCSV(csvText) {
+            csvText = csvText.replace(/^\uFEFF/, '');
+            const lines = csvText.split(/\r?\n/).filter(l => l.trim());
+            if (lines.length === 0) return [];
+
+            const firstLine = lines[0];
+            const sep = firstLine.includes(';') ? ';' : ',';
+            const parseLine = (text) => text.split(sep);
+
+            const headers = parseLine(firstLine).map(h => h.toLowerCase());
+
+            return lines.slice(1).map(line => {
+                const values = parseLine(line);
+                let obj = {};
+                headers.forEach((header, i) => {
+                    let key = header;
+                    if (key === "correo") key = "email";
+                    if (key === "rol") key = "perfil";
+                    if (key === "ciudad") key = "area";
+                    if (key === "contraseña") key = "password";
+                    if (key === "dias de vacaciones") key = "dias_vacaciones";
+                    if (key === "fecha nacimiento") key = "cumple";
+
+                    const val = values[i] || "";
+                    if (key === "foto" || key === "fotografía" || key === "imagen" || key === "link foto") {
+                        if (val.includes('/d/')) {
+                            obj["foto_id"] = val.split('/d/')[1].split('/')[0];
+                        } else if (val && val !== "-" && val !== "N/A") {
+                            obj["foto_id"] = val;
+                        }
+                    } else {
+                        obj[key] = val;
+                    }
+                });
+                return obj;
+            }).filter(u => u.documento);
+        }
+
+        async function syncWithMaster() {
+            if (!MASTER_DATA_URL) return;
+            try {
+                const response = await fetch(MASTER_DATA_URL);
+                const csvText = await response.text();
+                const masterColabs = parseCSV(csvText);
+
+                if (masterColabs.length > 0) {
+                    localStorage.setItem('master_cache', JSON.stringify(masterColabs));
+
+                    const me = masterColabs.find(u => String(u.documento) === String(user.documento));
+                    if (me) {
+                        user = me;
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                        updateUI();
+                    }
+                    updateBirthdays(masterColabs);
+                    console.log("Master Sync OK");
+                }
+            } catch (e) {
+                console.error("Sync error", e);
+            }
+        }
+
+        function loadInitialData() {
+            const cached = localStorage.getItem('master_cache');
+            if (cached) {
+                const data = JSON.parse(cached);
+                updateBirthdays(data);
+            }
+            setTimeout(syncWithMaster, 100);
+        }
+
+        function updateBirthdays(allUsers) {
+            const listContainer = document.getElementById('birthdayList');
+            if (!listContainer) return;
+
+            const today = new Date();
+            const currentYear = today.getFullYear();
+
+            // Mapeo de meses en español para parsing flexible
+            const meses = {
+                'enero': 0, 'febrero': 1, 'marzo': 2, 'abril': 3, 'mayo': 4, 'junio': 5,
+                'julio': 6, 'agosto': 7, 'septiembre': 8, 'octubre': 9, 'noviembre': 10, 'diciembre': 11
+            };
+
+            const processed = allUsers.map(u => {
+                let bDay = null;
+                const raw = String(u.cumple || "").toLowerCase();
+
+                // Intentar parsear "DD de MES", "YYYY-MM-DD" o "DD/MM/YYYY"
+                if (raw.includes(' de ')) {
+                    const parts = raw.split(' de ');
+                    const day = parseInt(parts[0]);
+                    const month = meses[parts[1].trim()];
+                    if (!isNaN(day) && month !== undefined) {
+                        bDay = new Date(currentYear, month, day);
+                    }
+                } else if (raw.includes('-') || raw.includes('/')) {
+                    const sep = raw.includes('-') ? '-' : '/';
+                    const parts = raw.split(sep);
+                    // Formatos probables: DD/MM/YYYY o YYYY-MM-DD
+                    if (parts[0].length === 4) {
+                        // YYYY/MM/DD
+                        bDay = new Date(currentYear, parseInt(parts[1]) - 1, parseInt(parts[2]));
+                    } else {
+                        // DD/MM/YYYY
+                        bDay = new Date(currentYear, parseInt(parts[1]) - 1, parseInt(parts[0]));
+                    }
+                }
+
+                if (!bDay || isNaN(bDay.getTime())) return null;
+
+                // Si ya pasó este año, mover al siguiente año para cálculo de proximidad
+                let nextOccurrence = new Date(bDay);
+                // Usar medianoche para comparación limpia
+                const todayClean = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                if (nextOccurrence < todayClean) {
+                    nextOccurrence.setFullYear(currentYear + 1);
+                }
+
+                const diffTime = nextOccurrence - todayClean;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                return { ...u, nextDate: nextOccurrence, daysLeft: diffDays };
+            }).filter(u => u !== null);
+
+            // Ordenar por cercanía
+            processed.sort((a, b) => a.daysLeft - b.daysLeft);
+
+            const top5 = processed.slice(0, 5);
+            listContainer.innerHTML = '';
+
+            if (top5.length === 0) {
+                listContainer.innerHTML = '<p style="font-size:0.8rem; text-align:center; opacity:0.6;">No hay fechas registradas</p>';
+                return;
+            }
+
+            top5.forEach(u => {
+                const isToday = u.daysLeft === 0;
+                const dateStr = u.nextDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+
+                const fotoPath = u.foto_id ? `https://lh3.googleusercontent.com/d/${u.foto_id}` : `images/${u.documento}.png`;
+                const initials = u.nombre.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+                listContainer.innerHTML += `
+                    <div class="birthday-item ${isToday ? 'birthday-today' : ''}">
+                        <div class="birthday-avatar-container" style="width:40px; height:40px; position:relative;">
+                            <img src="${fotoPath}" class="birthday-avatar" loading="lazy" 
+                                 onload="this.style.opacity=1" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <div class="avatar-placeholder" style="display:none; width:40px; height:40px;">${initials}</div>
+                        </div>
+                        <div class="birthday-info">
+                            <h4>${u.nombre}</h4>
+                            <p>${isToday ? '<strong>¡Hoy! 🎂</strong>' : dateStr}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function updateUI() {
+            // Update UI with User Info
+            document.getElementById('userName').textContent = user.nombre;
+            document.getElementById('userArea').textContent = (user.cargo || user.area || "Colaborador");
+            document.getElementById('userInitial').textContent = user.nombre.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            // Foto de Perfil
+            const avatarImg = document.getElementById('userAvatarImg');
+            const initialSpan = document.getElementById('userInitial');
+
+            // Prioridad: Drive -> Local
+            const imgPath = user.foto_id ? `https://lh3.googleusercontent.com/d/${user.foto_id}` : `images/${user.documento}.png`;
+
+            avatarImg.src = imgPath;
+            avatarImg.onload = () => {
+                avatarImg.style.display = 'block';
+                initialSpan.style.display = 'none';
+            };
+            avatarImg.onerror = () => {
+                avatarImg.style.display = 'none';
+                initialSpan.style.display = 'block';
+            };
+
+            // Directorio visible para todos
+            const navDir = document.getElementById('navDirectorio');
+            if (navDir) navDir.style.display = 'block';
+
+            // Actualizar Saldo de Vacaciones en Sidebar
+            const sidebarSaldo = document.getElementById('sidebarSaldo');
+            if (sidebarSaldo) {
+                sidebarSaldo.textContent = (user.dias_vacaciones || user.pasivo_vacacional || "0");
+            }
+        }
+
+        loadInitialData();
+        updateUI();
+        syncWithMaster(); // Opcional, ya se llama en loadInitialData
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const dots = document.querySelectorAll('.carousel-dot');
+
+        function showSlide(index) {
+            slides.forEach(s => s.classList.remove('active'));
+            dots.forEach(d => d.classList.remove('active'));
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+        }
+
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }, 5000);
+
+        dots.forEach((dot, idx) => {
+            dot.addEventListener('click', () => {
+                currentSlide = idx;
+                showSlide(currentSlide);
+            });
+        });
+
+        // --- LOGICA DE MODALES ---
+        const modalSoporte = document.getElementById('modalSoporte');
+        const modalVacaciones = document.getElementById('modalVacaciones');
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+        // Abrir Soporte (Header y Quick Link)
+        const openSoporte = () => {
+            modalSoporte.style.display = 'flex';
+            backToStep1();
+            // Pre-llenar datos del usuario usando la variable global 'user'
+            document.getElementById('ticketNombre').value = user.nombre;
+            document.getElementById('ticketDoc').value = user.documento;
+            document.getElementById('ticketEmail').value = user.email || user.correo || "";
+        };
+
+        document.getElementById('btnSoporte').onclick = openSoporte;
+        document.getElementById('quickSoporte').onclick = openSoporte;
+
+        // Abrir Ausencias (Quick Link)
+        document.getElementById('quickVacaciones').onclick = () => {
+            modalVacaciones.style.display = 'flex';
+            document.getElementById('saldoDias').textContent = (user.dias_vacaciones || user.pasivo_vacacional || "0") + " Días";
+            // Reset form summary
+            document.getElementById('vacSummary').style.display = 'none';
+            document.getElementById('vacationForm').reset();
+        };
+
+        // Cerrar Modales
+        document.getElementById('closeSoporte').onclick = () => { modalSoporte.style.display = 'none'; };
+        document.getElementById('closeVacaciones').onclick = () => { modalVacaciones.style.display = 'none'; };
+
+        function closeSoporteModal() { modalSoporte.style.display = 'none'; }
+
+        // Step Soporte
+        const incidents = {
+            'TI': ['Contraseña bloqueada', 'Internet lento', 'Error en ERP', 'Instalación de Software', 'Otros'],
+            'RRHH': ['Duda sobre Nómina', 'Constancia Laboral', 'Beneficios Salud', 'Actualización Datos', 'Otros'],
+            'Manto': ['Climatización', 'Mobiliario Dañado', 'Iluminación', 'Aseo / Suministros', 'Otros']
+        };
+
+        function openStep2(dept) {
+            document.getElementById('soporteStep1').style.display = 'none';
+            document.getElementById('soporteStep2').style.display = 'block';
+
+            const sel = document.getElementById('incidentSel');
+            sel.innerHTML = '<option value="" disabled selected>Selecciona un asunto...</option>';
+            incidents[dept].forEach(i => {
+                const opt = document.createElement('option');
+                opt.value = i; opt.textContent = i;
+                sel.appendChild(opt);
+            });
+        }
+
+        // --- CALCULO DE VACACIONES ---
+        function calculateVacation() {
+            const startStr = document.getElementById('vacStart').value;
+            const endStr = document.getElementById('vacEnd').value;
+            const summary = document.getElementById('vacSummary');
+
+            if (startStr && endStr) {
+                // Forzamos interpretación local de la fecha
+                const start = new Date(startStr + 'T00:00:00');
+                const end = new Date(endStr + 'T00:00:00');
+
+                if (end >= start) {
+                    const diffTime = Math.abs(end - start);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+                    const nextDay = new Date(end);
+                    nextDay.setDate(nextDay.getDate() + 1);
+
+                    document.getElementById('daysCount').textContent = diffDays;
+                    document.getElementById('returnDate').textContent = nextDay.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+                    summary.style.display = 'block';
+                } else {
+                    summary.style.display = 'none';
+                }
+            } else {
+                summary.style.display = 'none';
+            }
+        }
+
+        document.getElementById('vacStart').addEventListener('change', calculateVacation);
+        document.getElementById('vacEnd').addEventListener('change', calculateVacation);
+
+        function backToStep1() {
+            document.getElementById('soporteStep1').style.display = 'block';
+            document.getElementById('soporteStep2').style.display = 'none';
+            document.getElementById('soporteSuccess').style.display = 'none';
+        }
+
+        // --- LOGICA DE PERSISTENCIA (Sincronización con Google Sheets) ---
+        // Pega aquí los links de "Implementación" (terminados en /exec) de cada archivo
+        const GOOGLE_TICKET_URL = "https://script.google.com/macros/s/AKfycbyDLADvNYLvYHGNjihuHcpcIuKfZrOQvLAVYMLK_sz0i7CSJAm8QhmdWKtz6Y5lS8I/exec";
+        const GOOGLE_AUSENCIA_URL = "https://script.google.com/macros/s/AKfycbxqayt9bmZEQDOs1R05EzpuAwj3_gu7k4w9Sj-dVlH5Fj9kQb26fHwf9dq2XF6nwL99Cw/exec"; // Pega aquí el URL del nuevo script para Ausencias
+
+        // Función auxiliar para enviar datos de forma ultra-robusta desde archivo local
+        function sendToGoogleDrive(data, targetUrl) {
+            if (!targetUrl) return;
+
+            try {
+                // Creamos un iframe invisible para no recargar la página
+                const iframeName = 'hidden_iframe_' + Date.now();
+                const iframe = document.createElement('iframe');
+                iframe.name = iframeName;
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+
+                // Creamos un formulario temporal
+                const form = document.createElement('form');
+                form.target = iframeName;
+                form.action = targetUrl;
+                form.method = 'GET';
+
+                // Añadimos cada dato como un input
+                for (const key in data) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = data[key];
+                    form.appendChild(input);
+                }
+
+                document.body.appendChild(form);
+                form.submit();
+
+                // Limpieza después de un momento
+                setTimeout(() => {
+                    document.body.removeChild(form);
+                    document.body.removeChild(iframe);
+                }, 2000);
+
+                console.log("Intento de envío realizado para:", data.tipo);
+            } catch (err) {
+                console.error("Error en el puente de envío:", err);
+            }
+        }
+
+        // --- Soporte Logic ---
+        document.getElementById('ticketForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const radicado = '#' + Math.floor(1000 + Math.random() * 9000);
+
+            const ticketData = {
+                tipo: 'TICKET',
+                radicado: radicado,
+                usuario: document.getElementById('ticketNombre').value,
+                documento: document.getElementById('ticketDoc').value,
+                correo: document.getElementById('ticketEmail').value,
+                incidente: document.getElementById('incidentSel').value,
+                detalle: document.getElementById('ticketDetail').value,
+                fecha: new Date().toLocaleString()
+            };
+
+            // 1. Local
+            let logs = JSON.parse(localStorage.getItem('ticketLogs') || '[]');
+            logs.push(ticketData);
+            localStorage.setItem('ticketLogs', JSON.stringify(logs));
+
+            // 2. Drive (TICKETS)
+            sendToGoogleDrive(ticketData, GOOGLE_TICKET_URL);
+
+            document.getElementById('soporteStep2').style.display = 'none';
+            document.getElementById('soporteSuccess').style.display = 'block';
+            document.getElementById('radicadoNum').textContent = radicado;
+        };
+
+        document.getElementById('vacationForm').onsubmit = (e) => {
+            e.preventDefault();
+            const vacData = {
+                tipo: 'AUSENCIA',
+                motivo: document.getElementById('vacMotivo').value,
+                usuario: user.nombre,
+                documento: user.documento,
+                correo: user.email || "",
+                desde: document.getElementById('vacStart').value,
+                hasta: document.getElementById('vacEnd').value,
+                dias: document.getElementById('daysCount').textContent,
+                regreso: document.getElementById('returnDate').textContent,
+                backup: document.getElementById('vacBackup').value,
+                notas: document.getElementById('vacNotes').value,
+                fecha_solicitud: new Date().toLocaleString()
+            };
+
+            // Local
+            let vacs = JSON.parse(localStorage.getItem('vacationLogs') || '[]');
+            vacs.push(vacData);
+            localStorage.setItem('vacationLogs', JSON.stringify(vacs));
+
+            // Drive (AUSENCIAS)
+            sendToGoogleDrive(vacData, GOOGLE_AUSENCIA_URL);
+
+            alert('¡Solicitud de ' + vacData.motivo + ' enviada con éxito!');
+            modalVacaciones.style.display = 'none';
+        };
+
+        window.onclick = (e) => {
+            if (e.target == modalSoporte) closeSoporteModal();
+            if (e.target == modalVacaciones) modalVacaciones.style.display = 'none';
+        };
+    </script>
+</body>
+
+</html>
+```

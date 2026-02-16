@@ -1,0 +1,9 @@
+# Git & OS junk
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+
+# Project specific
+data/updatedColaboradores.json
+master_cache

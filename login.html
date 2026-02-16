@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Intranet LQN</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #e90085;
+            --glass: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-white: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e90085 0%, #6e003f 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Abstract shapes for background depth */
+        .shape {
+            position: absolute;
+            filter: blur(80px);
+            z-index: -1;
+            border-radius: 50%;
+        }
+
+        .shape-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            top: -100px;
+            left: -100px;
+        }
+
+        .shape-2 {
+            width: 300px;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.1);
+            bottom: -50px;
+            right: -50px;
+        }
+
+        .login-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            text-align: center;
+            color: var(--text-white);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-container {
+            margin-bottom: 2rem;
+        }
+
+        .logo-container img {
+            max-width: 120px;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            font-weight: 300;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .input-group input:focus {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: white;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            color: var(--primary);
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .footer-text {
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            opacity: 0.6;
+        }
+
+        .error-msg {
+            color: #ff4d4d;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+
+    <div class="login-card">
+        <div class="logo-container"><img src="LQN.png">
+            <!-- Si tienes Logo.png, úsalo aquí. Por ahora un icono demo -->
+            <i class="" style="color: white; margin-bottom: 1rem;"></i>
+            <h2>Bienvenido</h2>
+            <p>Ingresa tu número de documento para acceder</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="documento">Número de Documento / Cédula</label>
+                <input type="text" id="documento" placeholder="Ej: 12345678" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" placeholder="Tu contraseña" required>
+                <div id="errorMsg" class="error-msg">Documento o contraseña incorrectos</div>
+            </div>
+            <button type="submit" class="login-btn">Entrar</button>
+        </form>
+
+        <div class="footer-text">
+            © 2026 LQN Intranet - Todos los derechos reservados
+        </div>
+    </div>
+
+    <script>
+        // URL de tu Google Sheet (Publicado como CSV)
+        const MASTER_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4dxNMqKVluRPiD6L-5OYPJUzYH4l87FRufvNS8BLWHfG6rSvB9y47uWOVnYDvRg/pub?output=csv";
+
+        let colaboradores = [
+            { documento: "1069432843", nombre: "Wilson Varela", rol: "Colaborador", ciudad: "Bogotá", cargo: "Analista", password: "123" },
+            { documento: "1024553483", nombre: "Valeria Hernandez", rol: "Gestión Humana", ciudad: "Bogotá", cargo: "Líder Talento", password: "123" }
+        ];
+
+        // Función para convertir CSV a JSON (Resistente a mayúsculas/minúsculas)
+        function parseCSV(csvText) {
+            if (!csvText) return [];
+            csvText = csvText.replace(/^\uFEFF/, '').trim();
+            const lines = csvText.split(/\r?\n/);
+            if (lines.length < 2) return [];
+
+            const sep = lines[0].includes(';') ? ';' : ',';
+            const headers = lines[0].split(sep).map(h => h.trim().toLowerCase());
+
+            return lines.slice(1).map(line => {
+                const values = line.split(sep);
+                let obj = {};
+                headers.forEach((header, i) => {
+                    let key = header;
+                    if (key === "correo") key = "email";
+                    if (key === "rol") key = "perfil";
+                    if (key === "contraseña") key = "password";
+
+                    let val = (values[i] || "").replace(/^"|"$/g, '').trim();
+                    if (key === "foto" || key === "fotografía" || key === "imagen" || key === "link foto") {
+                        if (val.includes('/d/')) {
+                            obj["foto_id"] = val.split('/d/')[1].split('/')[0];
+                        } else if (val && val !== "-" && val !== "N/A") {
+                            obj["foto_id"] = val;
+                        }
+                    } else {
+                        obj[key] = val;
+                    }
+                });
+                return obj;
+            }).filter(u => u.documento);
+        }
+
+        async function loadData() {
+            // 1. Intentar cargar desde Google Sheets (Master)
+            if (MASTER_DATA_URL) {
+                try {
+                    const response = await fetch(MASTER_DATA_URL);
+                    const csvText = await response.text();
+                    colaboradores = parseCSV(csvText);
+                    console.log("Datos cargados desde Google Sheets");
+                    return;
+                } catch (e) {
+                    console.warn("No se pudo cargar desde Google Sheets, usando backup");
+                }
+            }
+
+            // 2. Backup: Cargar desde archivo local
+            try {
+                const response = await fetch('data/colaboradores.json');
+                if (response.ok) {
+                    colaboradores = await response.json();
+                }
+            } catch (error) {
+                console.warn("Usando datos internos de emergencia (Fallback)");
+            }
+        }
+
+        loadData();
+
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const docInput = document.getElementById('documento').value.trim();
+            const passInput = document.getElementById('password').value.trim();
+            const errorElement = document.getElementById('errorMsg');
+
+            // Buscar al usuario
+            const user = colaboradores.find(c => String(c.documento) === String(docInput));
+
+            if (user) {
+                // Validar contraseña (tomada del campo 'password' mapeado desde 'Contraseña')
+                const correctPass = String(user.password || "");
+
+                if (correctPass === String(passInput)) {
+                    // Asegurar que 'perfil' esté seteado para compatibilidad
+                    if (user.rol && !user.perfil) user.perfil = user.rol;
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    window.location.href = 'Index.html';
+                } else {
+                    errorElement.style.display = 'block';
+                    errorElement.textContent = "Contraseña incorrecta. Por favor intenta de nuevo.";
+                }
+            } else {
+                errorElement.style.display = 'block';
+                errorElement.textContent = "Documento no encontrado. Verifica tus datos.";
+            }
+        });
+    </script>
+</body>
+
+</html>
