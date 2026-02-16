@@ -184,7 +184,7 @@
                 <input type="password" id="password" placeholder="Tu contraseña" required>
                 <div id="errorMsg" class="error-msg">Documento o contraseña incorrectos</div>
             </div>
-            <button type="submit" class="login-btn">Entrar</button>
+            <button type="submit" class="login-btn" id="loginBtn">Entrar</button>
         </form>
 
         <div class="footer-text">
@@ -216,9 +216,16 @@
                 let obj = {};
                 headers.forEach((header, i) => {
                     let key = header;
-                    if (key === "correo") key = "email";
-                    if (key === "rol") key = "perfil";
-                    if (key === "contraseña") key = "password";
+                    if (key === "documento" || key === "cedula" || key === "cédula") key = "documento";
+                    if (key === "nombre" || key === "nombre completo") key = "nombre";
+                    if (key === "correo" || key === "email") key = "email";
+                    if (key === "rol" || key === "perfil") key = "perfil";
+                    if (key === "contraseña" || key === "password" || key === "clave") key = "password";
+                    if (key === "cargo" || key === "puesto") key = "cargo";
+                    if (key === "área" || key === "area" || key === "ciudad") key = "area";
+
+                    // Asegurar mapeo de vacaciones para el index
+                    if (key === "días de vacaciones" || key === "dias de vacaciones" || key === "pasivo vacacional") key = "dias_vacaciones";
 
                     let val = (values[i] || "").replace(/^"|"$/g, '').trim();
                     if (key === "foto" || key === "fotografía" || key === "imagen" || key === "link foto") {
@@ -236,28 +243,47 @@
         }
 
         async function loadData() {
+            const btn = document.getElementById('loginBtn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = "Sincronizando...";
+
             // 1. Intentar cargar desde Google Sheets (Master)
             if (MASTER_DATA_URL) {
                 try {
                     const response = await fetch(MASTER_DATA_URL);
                     const csvText = await response.text();
-                    colaboradores = parseCSV(csvText);
-                    console.log("Datos cargados desde Google Sheets");
-                    return;
+                    const synced = parseCSV(csvText);
+                    if (synced.length > 0) {
+                        colaboradores = synced;
+                        localStorage.setItem('master_cache', JSON.stringify(colaboradores));
+                        console.log("Datos cargados y cacheados desde Google Sheets");
+                    }
                 } catch (e) {
-                    console.warn("No se pudo cargar desde Google Sheets, usando backup");
+                    console.warn("No se pudo cargar desde Google Sheets, usando cache o backup");
                 }
             }
 
-            // 2. Backup: Cargar desde archivo local
-            try {
-                const response = await fetch('data/colaboradores.json');
-                if (response.ok) {
-                    colaboradores = await response.json();
+            // Si falló el sync, intentar cargar del cache local
+            if (colaboradores.length <= 2) {
+                const cached = localStorage.getItem('master_cache');
+                if (cached) {
+                    colaboradores = JSON.parse(cached);
+                } else {
+                    // Backup: Cargar desde archivo local si no hay nada más
+                    try {
+                        const response = await fetch('data/colaboradores.json');
+                        if (response.ok) {
+                            colaboradores = await response.json();
+                        }
+                    } catch (error) {
+                        console.warn("Usando datos internos de emergencia (Fallback)");
+                    }
                 }
-            } catch (error) {
-                console.warn("Usando datos internos de emergencia (Fallback)");
             }
+
+            btn.disabled = false;
+            btn.textContent = originalText;
         }
 
         loadData();

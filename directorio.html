@@ -390,27 +390,76 @@
 
         let colaboradores = [];
 
-        // Función para convertir CSV a JSON (Resistente a mayúsculas y flexible)
+        // Función robusta para parsear CSV (maneja comillas y saltos de línea internos)
         function parseCSV(csvText) {
+            if (!csvText) return [];
             csvText = csvText.replace(/^\uFEFF/, '').trim();
-            const lines = csvText.split(/\r?\n/);
-            if (lines.length < 2) return [];
 
-            const sep = lines[0].includes(';') ? ';' : ',';
-            const headers = lines[0].split(sep).map(h => h.trim().toLowerCase());
+            const result = [];
+            let currentLine = [];
+            let currentField = "";
+            let inQuotes = false;
+            const lines0 = csvText.split('\n')[0];
+            const sep = lines0.includes(';') ? ';' : ',';
 
-            return lines.slice(1).map(line => {
-                const values = line.split(sep);
+            for (let i = 0; i < csvText.length; i++) {
+                const char = csvText[i];
+                const nextChar = csvText[i + 1];
+
+                if (inQuotes) {
+                    if (char === '"' && nextChar === '"') {
+                        currentField += '"';
+                        i++;
+                    } else if (char === '"') {
+                        inQuotes = false;
+                    } else {
+                        currentField += char;
+                    }
+                } else {
+                    if (char === '"') {
+                        inQuotes = true;
+                    } else if (char === sep) {
+                        currentLine.push(currentField.trim());
+                        currentField = "";
+                    } else if (char === '\n' || (char === '\r' && nextChar === '\n')) {
+                        currentLine.push(currentField.trim());
+                        result.push(currentLine);
+                        currentLine = [];
+                        currentField = "";
+                        if (char === '\r') i++;
+                    } else {
+                        currentField += char;
+                    }
+                }
+            }
+            if (currentField || currentLine.length > 0) {
+                currentLine.push(currentField.trim());
+                result.push(currentLine);
+            }
+
+            if (result.length < 2) return [];
+
+            const headers = result[0].map(h => h.toLowerCase());
+            return result.slice(1).map(values => {
                 let obj = {};
                 headers.forEach((header, i) => {
                     let key = header;
-                    if (key === "correo") key = "email";
-                    if (key === "rol") key = "perfil";
-                    if (key === "contraseña") key = "password";
-                    if (key === "celular") key = "extension";
+                    if (key === "documento" || key === "cedula" || key === "cédula") key = "documento";
+                    if (key === "nombre" || key === "nombre completo") key = "nombre";
+                    if (key === "correo" || key === "email") key = "email";
+                    if (key === "rol" || key === "perfil") key = "perfil";
+                    if (key === "contraseña" || key === "password" || key === "clave") key = "password";
+                    if (key === "cargo" || key === "puesto") key = "cargo";
+                    if (key === "área" || key === "area" || key === "ciudad") key = "area";
+                    if (key === "días de vacaciones" || key === "dias de vacaciones" || key === "pasivo vacacional") key = "pasivo_vacacional";
                     if (key === "fecha nacimiento" || key === "nacimiento") key = "cumple";
+                    if (key === "género" || key === "genero") key = "genero";
+                    if (key === "fecha ingreso" || key === "ingreso" || key === "fecha de ingreso") key = "ingreso";
+                    if (key === "grupo sanguíneo" || key === "grupo sanguineo") key = "grupo_sanguineo";
+                    if (key === "celular") key = "extension";
+                    if (key === "edad") key = "edad";
 
-                    let val = (values[i] || "").replace(/^"|"$/g, '').trim();
+                    let val = values[i] || "";
                     if (key === "foto" || key === "fotografía" || key === "imagen" || key === "link foto") {
                         if (val.includes('/d/')) {
                             obj["foto_id"] = val.split('/d/')[1].split('/')[0];
@@ -418,12 +467,6 @@
                             obj["foto_id"] = val;
                         }
                     } else {
-                        if (key === "género" || key === "genero") key = "genero";
-                        if (key === "fecha ingreso" || key === "ingreso" || key === "fecha de ingreso") key = "ingreso";
-                        if (key === "grupo sanguíneo" || key === "grupo sanguineo") key = "grupo_sanguineo";
-                        if (key === "pasivo vacacional" || key === "dias de vacaciones" || key === "días de vacaciones") key = "pasivo_vacacional";
-                        if (key === "edad") key = "edad";
-
                         obj[key] = val;
                     }
                 });
