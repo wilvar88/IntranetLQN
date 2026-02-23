@@ -390,60 +390,22 @@
 
         let colaboradores = [];
 
-        // Función robusta para parsear CSV (maneja comillas y saltos de línea internos)
+        // Función para parsear CSV (Unificada y robusta)
         function parseCSV(csvText) {
             if (!csvText) return [];
             csvText = csvText.replace(/^\uFEFF/, '').trim();
+            const lines = csvText.split(/\r?\n/).filter(l => l.trim());
+            if (lines.length < 2) return [];
 
-            const result = [];
-            let currentLine = [];
-            let currentField = "";
-            let inQuotes = false;
-            const lines0 = csvText.split('\n')[0];
-            const sep = lines0.includes(';') ? ';' : ',';
+            const sep = lines[0].includes(';') ? ';' : ',';
+            const headers = lines[0].split(sep).map(h => h.trim().toLowerCase());
 
-            for (let i = 0; i < csvText.length; i++) {
-                const char = csvText[i];
-                const nextChar = csvText[i + 1];
-
-                if (inQuotes) {
-                    if (char === '"' && nextChar === '"') {
-                        currentField += '"';
-                        i++;
-                    } else if (char === '"') {
-                        inQuotes = false;
-                    } else {
-                        currentField += char;
-                    }
-                } else {
-                    if (char === '"') {
-                        inQuotes = true;
-                    } else if (char === sep) {
-                        currentLine.push(currentField.trim());
-                        currentField = "";
-                    } else if (char === '\n' || (char === '\r' && nextChar === '\n')) {
-                        currentLine.push(currentField.trim());
-                        result.push(currentLine);
-                        currentLine = [];
-                        currentField = "";
-                        if (char === '\r') i++;
-                    } else {
-                        currentField += char;
-                    }
-                }
-            }
-            if (currentField || currentLine.length > 0) {
-                currentLine.push(currentField.trim());
-                result.push(currentLine);
-            }
-
-            if (result.length < 2) return [];
-
-            const headers = result[0].map(h => h.toLowerCase());
-            return result.slice(1).map(values => {
+            return lines.slice(1).map(line => {
+                const values = line.split(sep);
                 let obj = {};
                 headers.forEach((header, i) => {
                     let key = header;
+                    // Mapeo robusto unificado
                     if (key === "documento" || key === "cedula" || key === "cédula") key = "documento";
                     if (key === "nombre" || key === "nombre completo") key = "nombre";
                     if (key === "correo" || key === "email") key = "email";
@@ -453,13 +415,13 @@
                     if (key === "área" || key === "area" || key === "ciudad") key = "area";
                     if (key === "días de vacaciones" || key === "dias de vacaciones" || key === "pasivo vacacional") key = "pasivo_vacacional";
                     if (key === "fecha nacimiento" || key === "nacimiento") key = "cumple";
+                    if (key === "tipo id" || key === "tipo documento" || key === "tipo de documento" || key === "tipoid") key = "tipo_id";
                     if (key === "género" || key === "genero") key = "genero";
                     if (key === "fecha ingreso" || key === "ingreso" || key === "fecha de ingreso") key = "ingreso";
                     if (key === "grupo sanguíneo" || key === "grupo sanguineo") key = "grupo_sanguineo";
                     if (key === "celular") key = "extension";
-                    if (key === "edad") key = "edad";
 
-                    let val = values[i] || "";
+                    let val = (values[i] || "").replace(/^"|"$/g, '').trim();
                     if (key === "foto" || key === "fotografía" || key === "imagen" || key === "link foto") {
                         if (val.includes('/d/')) {
                             obj["foto_id"] = val.split('/d/')[1].split('/')[0];
@@ -488,41 +450,59 @@
         }
 
         async function loadDirectory() {
-            // Priority 1: Instant cache
+            console.log("Sincronizando directorio...");
+
+            // 1. Carga instantánea desde cache para no mostrar la pantalla vacía
             const cached = localStorage.getItem('master_cache');
             if (cached) {
                 colaboradores = JSON.parse(cached);
                 renderDirectory(colaboradores);
+                console.log("Directorio cargado inicialmente desde caché.");
             }
 
-            // Priority 2: Sync with Master URL
+            // 2. Sincronización con Master URL (FORZANDO ACTUALIZACIÓN)
             if (MASTER_DATA_URL) {
                 try {
-                    const response = await fetch(MASTER_DATA_URL);
+                    // Cache buster: agregamos un timestamp a la URL para engañar al navegador y que descargue siempre la versión nueva
+                    const ts = Date.now();
+                    const urlWithCacheBuster = MASTER_DATA_URL + (MASTER_DATA_URL.includes('?') ? '&' : '?') + "t=" + ts;
+
+                    // Bypass del caché del navegador para obtener datos frescos
+                    const response = await fetch(urlWithCacheBuster, { cache: "no-store" });
+
+                    if (!response.ok) throw new Error("Falla en respuesta de Google Sheets");
+
                     const csvText = await response.text();
                     const masterData = parseCSV(csvText);
 
-                    if (masterData.length > 0) {
+                    if (masterData && masterData.length > 0) {
                         colaboradores = masterData;
                         localStorage.setItem('master_cache', JSON.stringify(colaboradores));
+                        localStorage.setItem('last_sync_directory', new Date().toISOString());
                         renderDirectory(colaboradores);
+                        console.log(`✅ Directorio sincronizado: ${colaboradores.length} registros.`);
 
-                        // Update current user if needed
-                        const me = colaboradores.find(u => String(u.documento) === String(user.documento));
+                        // Actualizar datos del usuario actual si hubo cambios en su perfil
+                        const me = colaboradores.find(u => String(u.documento).replace(/\D/g, '') === String(user.documento).replace(/\D/g, ''));
                         if (me) {
                             localStorage.setItem('currentUser', JSON.stringify(me));
+                            // Actualizamos el objeto user en memoria para que el navbar refleje los cambios
+                            Object.assign(user, me);
                             updateNavbar();
                         }
                     }
                 } catch (e) {
-                    console.warn("Sync slow/fail", e);
-                    // Fallback to local json if cache and master fail
-                    if (!colaboradores.length) {
+                    console.warn("⚠️ La sincronización falló, usando datos en caché.", e);
+
+                    // Solo intentar local JSON si no hay absolutamente nada en memoria ni caché
+                    if (!colaboradores || colaboradores.length === 0) {
                         try {
-                            const localRes = await fetch('data/colaboradores.json');
-                            colaboradores = await localRes.json();
-                            renderDirectory(colaboradores);
-                        } catch (err) { console.error("Total fail", err); }
+                            const localRes = await fetch('data/colaboradores.json', { cache: "no-store" });
+                            if (localRes.ok) {
+                                colaboradores = await localRes.json();
+                                renderDirectory(colaboradores);
+                            }
+                        } catch (err) { console.error("Error crítico de carga", err); }
                     }
                 }
             }

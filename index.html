@@ -423,9 +423,9 @@
                     <i class="fa-solid fa-umbrella-beach"></i>
                     <p>Solicitudes de Ausencia</p>
                 </div>
-                <div class="link-card" onclick="alert('Sección en construcción')">
+                <div class="link-card" onclick="window.location.href='certificados.html'">
                     <i class="fa-solid fa-file-invoice-dollar"></i>
-                    <p>Nómina</p>
+                    <p>Tus Certificados</p>
                 </div>
                 <div class="link-card" id="quickSoporte">
                     <i class="fa-solid fa-laptop-medical"></i>
@@ -811,15 +811,23 @@
                 const values = parseLine(line);
                 let obj = {};
                 headers.forEach((header, i) => {
-                    let key = header;
-                    if (key === "correo") key = "email";
-                    if (key === "rol") key = "perfil";
-                    if (key === "ciudad") key = "area";
-                    if (key === "contraseña") key = "password";
-                    if (key === "dias de vacaciones") key = "dias_vacaciones";
-                    if (key === "fecha nacimiento") key = "cumple";
+                    let key = header.trim().toLowerCase(); // Limpieza extra
+                    // Mapeo robusto unificado
+                    if (key === "documento" || key === "cedula" || key === "cédula") key = "documento";
+                    if (key === "nombre" || key === "nombre completo") key = "nombre";
+                    if (key === "correo" || key === "email") key = "email";
+                    if (key === "rol" || key === "perfil") key = "perfil";
+                    if (key === "contraseña" || key === "password" || key === "clave") key = "password";
+                    if (key === "cargo" || key === "puesto") key = "cargo";
+                    if (key === "área" || key === "area" || key === "ciudad") key = "area";
+                    if (key === "días de vacaciones" || key === "dias de vacaciones" || key === "pasivo vacacional") key = "dias_vacaciones";
+                    if (key === "fecha nacimiento" || key === "nacimiento") key = "cumple";
+                    if (key === "fecha ingreso" || key === "ingreso" || key === "fecha de ingreso") key = "ingreso";
+                    if (key === "tipo contrato" || key === "tipo de contrato" || key === "contrato") key = "tipo_contrato";
+                    if (key === "tipo id" || key === "tipo documento" || key === "tipo de documento" || key === "tipoid") key = "tipo_id";
+                    if (key === "género" || key === "genero") key = "genero";
 
-                    const val = values[i] || "";
+                    let val = (values[i] || "").replace(/^"|"$/g, '').trim();
                     if (key === "foto" || key === "fotografía" || key === "imagen" || key === "link foto") {
                         if (val.includes('/d/')) {
                             obj["foto_id"] = val.split('/d/')[1].split('/')[0];
@@ -837,21 +845,28 @@
         async function syncWithMaster() {
             if (!MASTER_DATA_URL) return;
             try {
-                const response = await fetch(MASTER_DATA_URL);
+                // Cache buster: agregamos un timestamp a la URL
+                const ts = Date.now();
+                const urlWithCacheBuster = MASTER_DATA_URL + (MASTER_DATA_URL.includes('?') ? '&' : '?') + "t=" + ts;
+
+                const response = await fetch(urlWithCacheBuster, { cache: "no-store" });
+                if (!response.ok) throw new Error("Falla en respuesta del Master");
+
                 const csvText = await response.text();
                 const masterColabs = parseCSV(csvText);
 
                 if (masterColabs.length > 0) {
                     localStorage.setItem('master_cache', JSON.stringify(masterColabs));
 
-                    const me = masterColabs.find(u => String(u.documento) === String(user.documento));
+                    // Comparación limpia para el usuario actual
+                    const me = masterColabs.find(u => String(u.documento || "").replace(/\D/g, '') === String(user.documento || "").replace(/\D/g, ''));
                     if (me) {
                         user = me;
                         localStorage.setItem('currentUser', JSON.stringify(user));
                         updateUI();
                     }
                     updateBirthdays(masterColabs);
-                    console.log("Master Sync OK");
+                    console.log("Master Sync OK (Fresh Data)");
                 }
             } catch (e) {
                 console.error("Sync error", e);

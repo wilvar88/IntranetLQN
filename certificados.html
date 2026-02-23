@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet LQN - Tus Certificados</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Librería para manipulación de PDF -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="pdf_data.js"></script>
+    <style>
+        :root {
+            --primary: #e90085;
+            --bg-body: #fdf2f8;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-card: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --text-dark: #2d3436;
+            --text-light: #636e72;
+            --shadow: 0 8px 32px 0 rgba(233, 0, 133, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--bg-body);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(233, 0, 133, 0.1) 0, transparent 50%),
+                radial-gradient(at 50% 0%, rgba(255, 255, 255, 1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(233, 0, 133, 0.1) 0, transparent 50%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        .glass-effect {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        header {
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            margin: 0 20px;
+        }
+
+        .navbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .welcome-section {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .welcome-section h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .module-section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .option-card {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-card:hover {
+            background: white;
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .option-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+
+        .option-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .option-info p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .btn-generate {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: auto;
+            transition: 0.3s;
+        }
+
+        .btn-generate:hover {
+            background: var(--text-dark);
+        }
+
+        .disabled {
+            opacity: 0.6;
+            cursor: not-allowed !important;
+        }
+
+        .disabled:hover {
+            transform: none !important;
+            background: var(--glass-card) !important;
+            border-color: var(--glass-border) !important;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            overflow: hidden;
+        }
+
+        /* Cargando overlay */
+        #loadingOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--bg-body);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <p id="loadingText">Generando documento...</p>
+    </div>
+
+    <header>
+        <nav class="navbar glass-effect">
+            <div class="logo" onclick="window.location.href='index.html'">
+                <img src="LQN.png" alt="Logo LQN" style="height: 40px;"> LQN
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="recursos.html">Talento Humano</a></li>
+                <li><a href="recursos.html">Recursos</a></li>
+                <li><a href="recursos.html">Departamentos</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatarContainer">
+                    <img id="userAvatarImg" src="" style="width: 100%; height: 100%; display: none; object-fit: cover;">
+                    <span id="userInitial">U</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="welcome-section">
+            <h1>Gestión de Certificados y Nómina</h1>
+            <p>Descarga tus documentos oficiales de forma rápida y segura.</p>
+        </div>
+
+        <!-- SECCIÓN DE CERTIFICADOS -->
+        <div class="module-section">
+            <div class="section-header">
+                <i class="fa-solid fa-file-contract fa-2x"></i>
+                <h2>Tus Certificados</h2>
+            </div>
+            <div class="options-grid">
+                <!-- Sin Ingresos -->
+                <div class="option-card glass-effect" id="cardCertificado"
+                    onclick="generateCertificate('sin_ingresos')">
+                    <i class="fa-solid fa-file-pdf option-icon"></i>
+                    <div class="option-info">
+                        <h3>Certificado Laboral</h3>
+                        <p>Sin información de ingresos (Salarial).</p>
+                    </div>
+                    <button class="btn-generate">Generar PDF</button>
+                </div>
+                <!-- Con Ingresos -->
+                <div class="option-card glass-effect disabled" title="Próximamente">
+                    <i class="fa-solid fa-file-invoice-dollar option-icon" style="color: #636e72;"></i>
+                    <div class="option-info">
+                        <h3>Certificado Laboral</h3>
+                        <p>Con información de sueldo y compensaciones.</p>
+                    </div>
+                    <span style="font-size: 0.7rem; color: var(--primary); font-weight: 600;">PRÓXIMAMENTE</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DE DESPRENDIBLES -->
+        <div class="module-section">
+            <div class="section-header">
+                <i class="fa-solid fa-money-check-dollar fa-2x"></i>
+                <h2>Tus desprendibles de Nómina</h2>
+            </div>
+            <div class="options-grid">
+                <div class="option-card glass-effect" onclick="alert('Descargando comprobante de Diciembre...')">
+                    <i class="fa-solid fa-calendar-days option-icon"></i>
+                    <div class="option-info">
+                        <h3>Diciembre</h3>
+                        <p>Periodo 2025-12 / 1 - 31</p>
+                    </div>
+                    <button class="btn-generate" style="background: var(--text-dark);">Ver PDF</button>
+                </div>
+                <div class="option-card glass-effect" onclick="alert('Descargando comprobante de Enero...')">
+                    <i class="fa-solid fa-calendar-days option-icon"></i>
+                    <div class="option-info">
+                        <h3>Enero</h3>
+                        <p>Periodo 2026-01 / 1 - 31</p>
+                    </div>
+                    <button class="btn-generate" style="background: var(--text-dark);">Ver PDF</button>
+                </div>
+                <div class="option-card glass-effect" onclick="alert('Descargando comprobante de Febrero...')">
+                    <i class="fa-solid fa-calendar-days option-icon"></i>
+                    <div class="option-info">
+                        <h3>Febrero</h3>
+                        <p>Periodo 2026-02 / 1 - 28</p>
+                    </div>
+                    <button class="btn-generate" style="background: var(--text-dark);">Ver PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración inicial de usuario (Resistente a errores)
+        let user = JSON.parse(localStorage.getItem('currentUser'));
+
+        if (!user) {
+            window.location.href = 'login.html';
+        }
+
+        function updateNavbar() {
+            try {
+                const initialSpan = document.getElementById('userInitial');
+                const avatarImg = document.getElementById('userAvatarImg');
+
+                if (!user || !user.nombre) {
+                    console.warn("Datos de usuario incompletos en navbar.");
+                    initialSpan.textContent = "U";
+                } else {
+                    const initials = user.nombre.split(' ')
+                        .filter(n => n.length > 0)
+                        .map(n => n[0])
+                        .join('')
+                        .substring(0, 2)
+                        .toUpperCase();
+                    initialSpan.textContent = initials || "U";
+                }
+
+                if (user && user.foto_id) {
+                    avatarImg.src = `https://lh3.googleusercontent.com/d/${user.foto_id}`;
+                    avatarImg.onload = () => {
+                        avatarImg.style.display = 'block';
+                        initialSpan.style.display = 'none';
+                    };
+                }
+            } catch (err) {
+                console.error("Error en updateNavbar:", err);
+            }
+        }
+
+        updateNavbar();
+
+        // --- SISTEMA DE AUTO-RECUPERACIÓN DE DATOS ---
+        async function checkAndFixUserData() {
+            if (user && user.nombre && user.documento) return; // Datos OK
+
+            console.log("🛠️ Detectados datos incompletos. Intentando auto-reparación...");
+            const cachedMaster = localStorage.getItem('master_cache');
+            if (cachedMaster) {
+                const masterData = JSON.parse(cachedMaster);
+                const betterUser = masterData.find(u => String(u.documento) === String(user.documento));
+                if (betterUser) {
+                    user = betterUser;
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    console.log("✅ Datos recuperados de caché local.");
+                    updateNavbar();
+                    return;
+                }
+            }
+            console.warn("❌ No se pudo auto-reparar desde caché.");
+        }
+        checkAndFixUserData();
+
+        async function generateCertificate(type) {
+            if (type !== 'sin_ingresos') return;
+
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = 'flex';
+
+            try {
+                // Validación final de datos
+                if (!user || !user.documento || !user.nombre) {
+                    alert("⚠️ Sus datos de perfil no están cargados completamente. Por favor regrese al Inicio para sincronizar.");
+                    overlay.style.display = 'none';
+                    return;
+                }
+
+                // 1. Cargar la plantilla PDF
+                let existingPdfBytes;
+                try {
+                    console.log("Cargando plantilla...");
+                    const response = await fetch('Certificación Plantilla.pdf');
+                    if (!response.ok) throw new Error("404");
+                    existingPdfBytes = await response.arrayBuffer();
+                } catch (e) {
+                    console.warn("Usando Base64 fallback");
+                    if (typeof PDF_TEMPLATE_BASE64 !== 'undefined') {
+                        const binary = atob(PDF_TEMPLATE_BASE64.trim().replace(/[\r\n]/g, ""));
+                        const bytes = new Uint8Array(binary.length);
+                        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                        existingPdfBytes = bytes.buffer;
+                    } else {
+                        throw new Error("No hay plantilla");
+                    }
+                }
+
+                // 2. Preparar pdf-lib
+                const { PDFDocument, rgb, StandardFonts } = PDFLib;
+                const pdfDoc = await PDFDocument.load(existingPdfBytes);
+                const HelveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+                const Helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+                const pages = pdfDoc.getPages();
+                const firstPage = pages[0];
+                const { width, height } = firstPage.getSize();
+
+                // Datos dinámicos
+                const nombre = (user.nombre || "").toUpperCase();
+                const tipoDoc = (user.tipo_id || "CC").toUpperCase();
+                const documento = user.documento || "";
+                const fechaIngreso = user.ingreso || "N/A";
+                const contrato = (user.tipo_contrato || "A Termino Indefinido").toUpperCase();
+                const cargo = (user.cargo || "COLABORADOR").toUpperCase();
+
+                const hoy = new Date();
+                const dia = hoy.getDate();
+                const mes = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"][hoy.getMonth()];
+                const anio = hoy.getFullYear();
+
+                let currentY = height - 120;
+
+                const drawCentered = (text, size, font, y) => {
+                    const tw = font.widthOfTextAtSize(text, size);
+                    firstPage.drawText(text, { x: (width / 2) - (tw / 2), y, size, font, color: rgb(0, 0, 0) });
+                };
+
+                drawCentered("LOQUENECESITO.CO S.A.S", 14, HelveticaBold, currentY);
+                currentY -= 25;
+                drawCentered("NIT. 900.986.913-5", 12, HelveticaBold, currentY);
+                currentY -= 45;
+                drawCentered("CERTIFICA QUE:", 12, HelveticaBold, currentY);
+                currentY -= 45;
+
+                const margin = 70;
+                const bodySize = 11;
+                const lineHeight = 18;
+                const bodyWidth = width - (margin * 2);
+
+                const segments = [
+                    { text: nombre, bold: true },
+                    { text: " identificado(a) con ", bold: false },
+                    { text: tipoDoc, bold: true },
+                    { text: " N° ", bold: false },
+                    { text: documento, bold: true },
+                    { text: ", labora en la compañía desde el ", bold: false },
+                    { text: fechaIngreso, bold: true },
+                    { text: " hasta la fecha, con un CONTRATO  ", bold: false },
+                    { text: contrato, bold: true },
+                    { text: " desempeñando el cargo de ", bold: false },
+                    { text: cargo, bold: true },
+                    { text: ".", bold: false }
+                ];
+
+                const drawJustified = (segs, startY) => {
+                    let lines = [];
+                    let currentLine = [];
+                    let currentLineWidth = 0;
+
+                    segs.forEach(s => {
+                        const words = s.text.split(/(\s+)/);
+                        words.forEach(w => {
+                            if (w === "") return;
+                            const font = s.bold ? HelveticaBold : Helvetica;
+                            const wWidth = font.widthOfTextAtSize(w, bodySize);
+
+                            if (currentLineWidth + wWidth > bodyWidth && currentLine.length > 0) {
+                                lines.push({ words: currentLine, width: currentLineWidth, isLast: false });
+                                currentLine = [];
+                                currentLineWidth = 0;
+                            }
+                            if (currentLine.length === 0 && w.trim() === "") return;
+                            currentLine.push({ text: w, width: wWidth, font, isSpace: w.trim() === "" });
+                            currentLineWidth += wWidth;
+                        });
+                    });
+                    if (currentLine.length > 0) lines.push({ words: currentLine, width: currentLineWidth, isLast: true });
+
+                    let y = startY;
+                    lines.forEach(line => {
+                        let x = margin;
+                        const spaces = line.words.filter(w => w.isSpace);
+                        const extra = (!line.isLast && spaces.length > 0) ? (bodyWidth - line.width) / spaces.length : 0;
+
+                        line.words.forEach(word => {
+                            firstPage.drawText(word.text, { x, y, size: bodySize, font: word.font, color: rgb(0, 0, 0) });
+                            x += word.width + (word.isSpace ? extra : 0);
+                        });
+
+                        const last = line.words[line.words.length - 1].text;
+                        if (last.includes(".") && line.isLast) {
+                            y -= (lineHeight * 2); // Punto aparte: Doble espacio exacto
+                        } else {
+                            y -= lineHeight;
+                        }
+                    });
+                    return y;
+                };
+
+                currentY = drawJustified(segments, currentY);
+                currentY -= 5; // Ajuste menor antes del contacto
+
+                const drawBoldLine = (parts, y) => {
+                    let cx = margin;
+                    parts.forEach(p => {
+                        const font = p.bold ? HelveticaBold : Helvetica;
+                        firstPage.drawText(p.text, { x: cx, y, size: bodySize, font, color: rgb(0, 0, 0) });
+                        cx += font.widthOfTextAtSize(p.text, bodySize);
+                    });
+                };
+
+                drawBoldLine([{ text: "En caso de requerir información adicional favor comunicarse al número ", bold: false }, { text: "3178101913", bold: true }], currentY);
+                currentY -= lineHeight;
+                drawBoldLine([{ text: "Nini Valeria Hernández ", bold: true }, { text: " Líder de Talento Humano.", bold: false }], currentY);
+
+                currentY -= 45;
+                firstPage.drawText(`Se expide a solicitud del interesado en Bogotá D.C; a los ${dia} días del mes de ${mes} del ${anio}.`, {
+                    x: margin, y: currentY, size: bodySize, font: Helvetica, color: rgb(0, 0, 0), maxWidth: bodyWidth
+                });
+
+                currentY -= (lineHeight * 6); // Doble espacio antes de Cordialmente
+                firstPage.drawText("Cordialmente,", { x: margin, y: currentY, size: bodySize, font: Helvetica, color: rgb(0, 0, 0) });
+
+                const pdfBytes = await pdfDoc.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `Certificado_Laboral_${documento}.pdf`;
+                link.click();
+            } catch (err) {
+                console.error("Error PDF:", err);
+                alert("Hubo un error al generar el PDF. Verifica los datos.");
+            } finally {
+                overlay.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>

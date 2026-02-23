@@ -1,38 +1,70 @@
 <!DOCTYPE html>
+<!-- Definición del tipo de documento como HTML5 -->
 <html lang="es">
+<!-- Inicio del documento HTML con idioma establecido en español -->
 
 <head>
+    <!-- Configuración del encabezado del documento -->
     <meta charset="UTF-8">
+    <!-- Juego de caracteres universal para soportar tildes y eñes -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Asegura que la página sea responsiva en dispositivos móviles -->
     <title>Login - Intranet LQN</title>
+    <!-- Título que aparece en la pestaña del navegador -->
+
+    <!-- Importación de Font Awesome para usar iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Importación de la fuente Poppins desde Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
     <style>
+        /* Definición de variables globales y estilos base */
         :root {
             --primary: #e90085;
+            /* Color rosado principal de la marca */
             --glass: rgba(255, 255, 255, 0.15);
+            /* Fondo blanco semitransparente tipo cristal */
             --glass-border: rgba(255, 255, 255, 0.2);
+            /* Borde sutil para el efecto de cristal */
             --text-white: #ffffff;
+            /* Color de texto blanco */
+        }
+
+        /* RESET GLOBAL: Esta es la parte clave que faltaba */
+        * {
+            box-sizing: border-box;
+            /* Asegura que el padding/bordes no aumenten el ancho total de los elementos */
         }
 
         body {
             margin: 0;
             padding: 0;
             font-family: 'Poppins', sans-serif;
+            /* Aplica la fuente importada */
+            /* Fondo degradado diagonal desde rosado a un tono más oscuro */
             background: linear-gradient(135deg, #e90085 0%, #6e003f 100%);
             height: 100vh;
+            /* Ocupa el 100% de la altura de la pantalla */
             display: flex;
+            /* Uso de Flexbox para centrar el contenido */
             align-items: center;
+            /* Centrado vertical */
             justify-content: center;
+            /* Centrado horizontal */
             overflow: hidden;
+            /* Evita barras de desplazamiento */
         }
 
-        /* Abstract shapes for background depth */
+        /* Figuras abstractas para dar profundidad al fondo */
         .shape {
             position: absolute;
+            /* Se posicionan detrás del contenido principal */
             filter: blur(80px);
+            /* Difumina las formas para un efecto suave */
             z-index: -1;
+            /* Envía las figuras al fondo */
             border-radius: 50%;
+            /* Hace las figuras circulares */
         }
 
         .shape-1 {
@@ -51,25 +83,34 @@
             right: -50px;
         }
 
+        /* Tarjeta principal del login */
         .login-card {
             background: var(--glass);
+            /* Efecto de fondo translúcido */
             backdrop-filter: blur(15px);
+            /* Desenfoque del fondo detrás de la tarjeta */
             -webkit-backdrop-filter: blur(15px);
+            /* Compatibilidad del desenfoque para Safari */
             border: 1px solid var(--glass-border);
             border-radius: 24px;
             padding: 3rem;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            width: 80%;
+            /* Ocupa el 90% del ancho en pantallas pequeñas */
+            max-width: 500px;
+            /* Pero no más de 500 píxeles */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.623);
+            /* Sombra para dar elevación */
             text-align: center;
             color: var(--text-white);
             animation: fadeIn 0.8s ease-out;
+            /* Animación de entrada al cargar */
         }
 
+        /* Animación para que la tarjeta aparezca suavemente desde abajo */
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(90px);
             }
 
             to {
@@ -78,6 +119,7 @@
             }
         }
 
+        /* Contenedor del logo */
         .logo-container {
             margin-bottom: 2rem;
         }
@@ -99,6 +141,7 @@
             opacity: 0.8;
         }
 
+        /* Estilos para los grupos de entrada (label + input) */
         .input-group {
             margin-bottom: 1.5rem;
             text-align: left;
@@ -111,8 +154,10 @@
             font-weight: 600;
         }
 
+        /* Estilo de los campos de texto y contraseña */
         .input-group input {
             width: 100%;
+            /* Ahora con box-sizing: border-box, el 100% incluye el padding */
             padding: 12px 20px;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--glass-border);
@@ -121,13 +166,16 @@
             outline: none;
             font-size: 1rem;
             transition: 0.3s;
+            /* Transición suave al enfocar */
         }
 
+        /* Efecto cuando el usuario hace clic en el campo */
         .input-group input:focus {
             background: rgba(255, 255, 255, 0.2);
             border-color: white;
         }
 
+        /* Botón de inicio de sesión */
         .login-btn {
             width: 100%;
             padding: 12px;
@@ -142,17 +190,21 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
+        /* Efecto hover del botón (al pasar el mouse) */
         .login-btn:hover {
             transform: translateY(-2px);
+            /* Pequeño salto hacia arriba */
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
 
+        /* Texto del pie de página */
         .footer-text {
             margin-top: 2rem;
             font-size: 0.75rem;
             opacity: 0.6;
         }
 
+        /* Mensaje de error (oculto por defecto) */
         .error-msg {
             color: #ff4d4d;
             font-size: 0.8rem;
@@ -163,52 +215,67 @@
 </head>
 
 <body>
+    <!-- Figuras decorativas de fondo -->
     <div class="shape shape-1"></div>
     <div class="shape shape-2"></div>
 
+    <!-- Contenedor principal del formulario -->
     <div class="login-card">
-        <div class="logo-container"><img src="LQN.png">
-            <!-- Si tienes Logo.png, úsalo aquí. Por ahora un icono demo -->
-            <i class="" style="color: white; margin-bottom: 1rem;"></i>
+        <div class="logo-container">
+            <!-- Logo de la empresa -->
+            <img src="LQN.png">
+            <!-- Título de bienvenida -->
             <h2>Bienvenido</h2>
             <p>Ingresa tu número de documento para acceder</p>
         </div>
 
+        <!-- Formulario de acceso -->
         <form id="loginForm">
+            <!-- Campo de documento -->
             <div class="input-group">
                 <label for="documento">Número de Documento / Cédula</label>
                 <input type="text" id="documento" placeholder="Ej: 12345678" required>
             </div>
+            <!-- Campo de contraseña -->
             <div class="input-group">
                 <label for="password">Contraseña</label>
                 <input type="password" id="password" placeholder="Tu contraseña" required>
+                <!-- Mensaje de error -->
                 <div id="errorMsg" class="error-msg">Documento o contraseña incorrectos</div>
             </div>
+            <!-- Botón para enviar el formulario -->
             <button type="submit" class="login-btn" id="loginBtn">Entrar</button>
         </form>
 
+        <!-- Créditos y marca legal -->
         <div class="footer-text">
             © 2026 LQN Intranet - Todos los derechos reservados
         </div>
     </div>
 
     <script>
-        // URL de tu Google Sheet (Publicado como CSV)
+        /* Lógica de JavaScript para el inicio de sesión */
+
+        // URL del Google Sheet publicado como CSV para sincronizar colaboradores
         const MASTER_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4dxNMqKVluRPiD6L-5OYPJUzYH4l87FRufvNS8BLWHfG6rSvB9y47uWOVnYDvRg/pub?output=csv";
 
+        // Datos locales de emergencia si la red falla por completo
         let colaboradores = [
             { documento: "1069432843", nombre: "Wilson Varela", rol: "Colaborador", ciudad: "Bogotá", cargo: "Analista", password: "123" },
-            { documento: "1024553483", nombre: "Valeria Hernandez", rol: "Gestión Humana", ciudad: "Bogotá", cargo: "Líder Talento", password: "123" }
+            { documento: "20908464", nombre: "Ercilia de Varela", rol: "Gestión Humana", ciudad: "Bogotá", cargo: "Líder Talento", password: "123" }
         ];
 
-        // Función para convertir CSV a JSON (Resistente a mayúsculas/minúsculas)
+        /* Función para procesar el formato CSV y transformarlo a objetos JSON reconocibles */
         function parseCSV(csvText) {
             if (!csvText) return [];
+            // Elimina el carácter BOM si existe
             csvText = csvText.replace(/^\uFEFF/, '').trim();
             const lines = csvText.split(/\r?\n/);
             if (lines.length < 2) return [];
 
+            // Detecta si el separador es coma o punto y coma
             const sep = lines[0].includes(';') ? ';' : ',';
+            // Toma los encabezados y los limpia
             const headers = lines[0].split(sep).map(h => h.trim().toLowerCase());
 
             return lines.slice(1).map(line => {
@@ -216,6 +283,7 @@
                 let obj = {};
                 headers.forEach((header, i) => {
                     let key = header;
+                    // Mapeo inteligente de nombres de columnas a claves internas estándar
                     if (key === "documento" || key === "cedula" || key === "cédula") key = "documento";
                     if (key === "nombre" || key === "nombre completo") key = "nombre";
                     if (key === "correo" || key === "email") key = "email";
@@ -223,11 +291,15 @@
                     if (key === "contraseña" || key === "password" || key === "clave") key = "password";
                     if (key === "cargo" || key === "puesto") key = "cargo";
                     if (key === "área" || key === "area" || key === "ciudad") key = "area";
-
-                    // Asegurar mapeo de vacaciones para el index
                     if (key === "días de vacaciones" || key === "dias de vacaciones" || key === "pasivo vacacional") key = "dias_vacaciones";
+                    if (key === "tipo id" || key === "tipo documento" || key === "tipo de documento" || key === "tipoid") key = "tipo_id";
+                    if (key === "fecha ingreso" || key === "ingreso" || key === "fecha de ingreso") key = "ingreso";
+                    if (key === "tipo contrato" || key === "tipo de contrato" || key === "contrato") key = "tipo_contrato";
+                    if (key === "fecha nacimiento" || key === "nacimiento") key = "cumple";
+                    if (key === "género" || key === "genero") key = "genero";
 
                     let val = (values[i] || "").replace(/^"|"$/g, '').trim();
+                    // Procesamiento especial para IDs de fotos de Google Drive
                     if (key === "foto" || key === "fotografía" || key === "imagen" || key === "link foto") {
                         if (val.includes('/d/')) {
                             obj["foto_id"] = val.split('/d/')[1].split('/')[0];
@@ -239,78 +311,107 @@
                     }
                 });
                 return obj;
-            }).filter(u => u.documento);
+            }).filter(u => u.documento); // Solo devuelve filas que tengan un número de documento
         }
 
+        /* Función principal para cargar datos desde la red o desde el cache local */
         async function loadData() {
             const btn = document.getElementById('loginBtn');
             const originalText = btn.textContent;
             btn.disabled = true;
             btn.textContent = "Sincronizando...";
 
-            // 1. Intentar cargar desde Google Sheets (Master)
+            console.log("Iniciando sincronización de datos...");
+
+            // 1. Intentar descargar la lista actualizada de Google Sheets (FORZANDO ACTUALIZACIÓN)
             if (MASTER_DATA_URL) {
                 try {
-                    const response = await fetch(MASTER_DATA_URL);
+                    // Cache buster: agregamos un timestamp a la URL para engañar al navegador y que descargue siempre la versión nueva
+                    const ts = Date.now();
+                    const urlWithCacheBuster = MASTER_DATA_URL + (MASTER_DATA_URL.includes('?') ? '&' : '?') + "t=" + ts;
+
+                    const response = await fetch(urlWithCacheBuster, { cache: "no-store" });
+                    if (!response.ok) throw new Error("Error en respuesta de red");
+
                     const csvText = await response.text();
                     const synced = parseCSV(csvText);
-                    if (synced.length > 0) {
+
+                    if (synced && synced.length > 0) {
                         colaboradores = synced;
+                        // Guarda en el navegador para uso offline
                         localStorage.setItem('master_cache', JSON.stringify(colaboradores));
-                        console.log("Datos cargados y cacheados desde Google Sheets");
+                        localStorage.setItem('last_sync', new Date().toISOString());
+                        console.log(`✅ Sincronización exitosa: ${colaboradores.length} colaboradores cargados.`);
                     }
                 } catch (e) {
-                    console.warn("No se pudo cargar desde Google Sheets, usando cache o backup");
+                    console.warn("⚠️ Falló descarga desde Google Sheets, intentando memoria local...", e);
                 }
             }
 
-            // Si falló el sync, intentar cargar del cache local
+            // 2. Si la red falló o devolvió vacío, buscar en el cache del navegador (localStorage)
+            const cached = localStorage.getItem('master_cache');
+            if (cached && colaboradores.length <= 2) {
+                const parsedCache = JSON.parse(cached);
+                if (parsedCache && parsedCache.length > 2) {
+                    colaboradores = parsedCache;
+                    console.log("ℹ️ Usando datos guardados en memoria local (Offline)");
+                }
+            }
+
+            // 3. Si todo lo anterior falla, intentar cargar archivo JSON de respaldo
             if (colaboradores.length <= 2) {
-                const cached = localStorage.getItem('master_cache');
-                if (cached) {
-                    colaboradores = JSON.parse(cached);
-                } else {
-                    // Backup: Cargar desde archivo local si no hay nada más
-                    try {
-                        const response = await fetch('data/colaboradores.json');
-                        if (response.ok) {
-                            colaboradores = await response.json();
+                try {
+                    const response = await fetch('data/colaboradores.json', { cache: "no-store" });
+                    if (response.ok) {
+                        const backup = await response.json();
+                        if (backup && backup.length > 0) {
+                            colaboradores = backup;
+                            console.log("ℹ️ Usando archivo de respaldo JSON");
                         }
-                    } catch (error) {
-                        console.warn("Usando datos internos de emergencia (Fallback)");
                     }
+                } catch (error) {
+                    console.warn("❌ Sin acceso a red ni backups. Usando datos internos de S.O.S.");
                 }
             }
 
+            // Reactiva el botón de login al terminar
             btn.disabled = false;
             btn.textContent = originalText;
         }
 
+        // Ejecuta la carga de datos al abrir la página
         loadData();
 
+        /* Escucha del evento de envío del formulario */
         document.getElementById('loginForm').addEventListener('submit', function (e) {
-            e.preventDefault();
+            e.preventDefault(); // Detiene el recargo de página habitual
             const docInput = document.getElementById('documento').value.trim();
             const passInput = document.getElementById('password').value.trim();
             const errorElement = document.getElementById('errorMsg');
 
-            // Buscar al usuario
-            const user = colaboradores.find(c => String(c.documento) === String(docInput));
+            // Intenta encontrar al colaborador por su número de documento (Comparación limpia)
+            const cleanInput = docInput.replace(/\D/g, ''); // Deja solo números
+            const user = colaboradores.find(c => {
+                const dbDoc = String(c.documento || "").replace(/\D/g, '');
+                return dbDoc === cleanInput && cleanInput !== "";
+            });
 
             if (user) {
-                // Validar contraseña (tomada del campo 'password' mapeado desde 'Contraseña')
+                // Compara la contraseña ingresada con la de la base de datos
                 const correctPass = String(user.password || "");
 
                 if (correctPass === String(passInput)) {
-                    // Asegurar que 'perfil' esté seteado para compatibilidad
+                    // Inicia la sesión: guarda el usuario actual y redirige
                     if (user.rol && !user.perfil) user.perfil = user.rol;
                     localStorage.setItem('currentUser', JSON.stringify(user));
                     window.location.href = 'index.html';
                 } else {
+                    // Muestra error si la contraseña es incorrecta
                     errorElement.style.display = 'block';
                     errorElement.textContent = "Contraseña incorrecta. Por favor intenta de nuevo.";
                 }
             } else {
+                // Muestra error si el documento no existe
                 errorElement.style.display = 'block';
                 errorElement.textContent = "Documento no encontrado. Verifica tus datos.";
             }
