@@ -288,10 +288,10 @@
                     if (key === "nombre" || key === "nombre completo") key = "nombre";
                     if (key === "correo" || key === "email") key = "email";
                     if (key === "rol" || key === "perfil") key = "perfil";
-                    if (key === "contraseña" || key === "password" || key === "clave") key = "password";
+                    if (key.includes("contrase") || key.includes("pass") || key === "clave") key = "password";
                     if (key === "cargo" || key === "puesto") key = "cargo";
                     if (key === "área" || key === "area" || key === "ciudad") key = "area";
-                    if (key === "días de vacaciones" || key === "dias de vacaciones" || key === "pasivo vacacional") key = "dias_vacaciones";
+                    if (key.includes("vacaciones") || key === "pasivo vacacional") key = "dias_vacaciones";
                     if (key.includes("fecha") && key.includes("nacimiento") || key === "nacimiento") key = "cumple";
                     if (key.includes("fecha") && key.includes("ingreso") || key === "ingreso") key = "ingreso";
                     if (key.includes("contrato") || key === "tipo contrato") key = "tipo_contrato";
@@ -399,8 +399,8 @@
             });
 
             if (user) {
-                // Compara la contraseña ingresada con la de la base de datos
-                const correctPass = String(user.password || "");
+                // Compara la contraseña ingresada con la de la base de datos (Sincronizada desde el Master)
+                const correctPass = String(user.password || "").trim();
 
                 if (correctPass === String(passInput)) {
                     // Inicia la sesión: guarda el usuario actual y redirige
@@ -408,9 +408,9 @@
                     localStorage.setItem('currentUser', JSON.stringify(user));
                     window.location.href = 'index.html';
                 } else {
-                    // Muestra error si la contraseña es incorrecta
+                    // Muestra error detallado
                     errorElement.style.display = 'block';
-                    errorElement.textContent = "Contraseña incorrecta. Por favor intenta de nuevo.";
+                    errorElement.textContent = "Contraseña incorrecta. (Nota: Si acabas de limpiar caché, espera a que termine la sincronización).";
                 }
             } else {
                 // Muestra error si el documento no existe
