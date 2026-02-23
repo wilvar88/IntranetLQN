@@ -379,10 +379,13 @@
 
         // --- SISTEMA DE AUTO-RECUPERACIÓN DE DATOS ---
         async function checkAndFixUserData() {
-            // Si ya tenemos todo lo necesario, no hacemos nada
-            if (user && user.nombre && user.documento && user.ingreso && user.ingreso !== "N/A") return;
+            // Si ya tenemos todo lo necesario, no hacemos nada (excepto si queremos forzar)
+            if (user && user.nombre && user.documento && user.ingreso && user.ingreso !== "N/A" && user.ingreso !== "") {
+                console.log("✅ Datos de sesión completos.");
+                return true;
+            }
 
-            console.log("🛠️ Detectados datos incompletos (Fecha de Ingreso u otros). Intentando auto-reparación...");
+            console.log("🛠️ Detectados datos incompletos. Intentando auto-reparación profunda...");
 
             // 1. Intentar con la caché local de master_cache
             const cachedMaster = localStorage.getItem('master_cache');
@@ -392,25 +395,25 @@
                     String(u.documento || "").replace(/\D/g, '') === String(user.documento || "").replace(/\D/g, '')
                 );
                 if (betterUser && betterUser.ingreso && betterUser.ingreso !== "N/A") {
-                    user = betterUser;
+                    user = { ...user, ...betterUser };
                     localStorage.setItem('currentUser', JSON.stringify(user));
-                    console.log("✅ Datos recuperados de caché local exitosamente.");
+                    console.log("✅ Datos recuperados de caché local.");
                     updateNavbar();
-                    return;
+                    return true;
                 }
             }
 
-            // 2. Si falla la caché, intentar una sincronización rápida con el Master (SOLO si estamos en certificados)
+            // 2. Si falla la caché, intentar una sincronización rápida con el Master
             try {
                 const MASTER_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4dxNMqKVluRPiD6L-5OYPJUzYH4l87FRufvNS8BLWHfG6rSvB9y47uWOVnYDvRg/pub?output=csv";
-                const response = await fetch(MASTER_URL + "?t=" + Date.now());
+                const response = await fetch(`${MASTER_URL}&t=${Date.now()}`);
                 const csv = await response.text();
 
-                // Función de parseo minimalista local para recuperación
                 const lines = csv.split(/\r?\n/).filter(l => l.trim());
                 if (lines.length > 0) {
                     const headers = lines[0].toLowerCase().split(lines[0].includes(';') ? ';' : ',').map(h => h.trim());
                     const rows = lines.slice(1).map(line => {
+                        // Split básico que respeta comas simples (suficiente para este CSV)
                         const vals = line.split(line.includes(';') ? ';' : ',');
                         let uObj = {};
                         headers.forEach((h, i) => {
@@ -418,23 +421,30 @@
                             if (key.includes("fecha") && key.includes("ingreso") || key === "ingreso") key = "ingreso";
                             if (key === "documento" || key === "cedula") key = "documento";
                             if (key === "nombre" || key === "nombre completo") key = "nombre";
+                            if (key.includes("tipo") && (key.includes("id") || key.includes("documento"))) key = "tipo_id";
+                            if (key.includes("contrato")) key = "tipo_contrato";
+                            if (key === "cargo") key = "cargo";
                             uObj[key] = (vals[i] || "").replace(/^"|"$/g, '').trim();
                         });
                         return uObj;
                     });
 
                     const freshMe = rows.find(u => String(u.documento || "").replace(/\D/g, '') === String(user.documento || "").replace(/\D/g, ''));
-                    if (freshMe && freshMe.ingreso) {
+                    if (freshMe) {
                         user = { ...user, ...freshMe };
                         localStorage.setItem('currentUser', JSON.stringify(user));
-                        console.log("✅ Datos sincronizados directamente desde Master.");
+                        console.log("✅ Datos sincronizados directamente desde Google Sheets.");
                         updateNavbar();
+                        return true;
                     }
                 }
             } catch (err) {
                 console.error("Falla en recuperación remota:", err);
             }
+            return false;
         }
+
+        // Ejecutar reparación inicial
         checkAndFixUserData();
 
         async function generateCertificate(type) {
@@ -444,9 +454,14 @@
             overlay.style.display = 'flex';
 
             try {
-                // Validación final de datos
-                if (!user || !user.documento || !user.nombre) {
-                    alert("⚠️ Sus datos de perfil no están cargados completamente. Por favor regrese al Inicio para sincronizar.");
+                // Validación y Reparación de Emergencia antes de empezar
+                console.log("🔍 Verificando integridad de datos antes de generar...");
+                await checkAndFixUserData();
+
+                console.log("Dato actual de ingreso:", user.ingreso);
+
+                if (!user || !user.documento || !user.nombre || !user.ingreso || user.ingreso === "N/A") {
+                    alert("⚠️ Sus datos de perfil (especialmente Fecha de Ingreso) aún no se han sincronizado del todo. Por favor espere un momento o refresque la página de Inicio.");
                     overlay.style.display = 'none';
                     return;
                 }
