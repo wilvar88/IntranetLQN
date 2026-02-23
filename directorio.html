@@ -417,7 +417,9 @@
                     if (key.includes("fecha") && key.includes("nacimiento") || key === "nacimiento") key = "cumple";
                     if (key.includes("fecha") && key.includes("ingreso") || key === "ingreso") key = "ingreso";
                     if (key.includes("contrato") || key === "tipo contrato") key = "tipo_contrato";
-                    if (key.includes("tipo") && (key.includes("id") || key.includes("documento")) || key === "tipoid") key = "tipo_id";
+                    if (key.includes("salario") && key.includes("base")) key = "salario_base";
+                    if (key.includes("auxilio") && key.includes("no") && key.includes("prestacional")) key = "auxilio_no_prestacional";
+                    if (key.includes("salario") && key.includes("final")) key = "salario_final";
                     if (key === "género" || key === "genero") key = "genero";
                     if (key === "grupo sanguíneo" || key === "grupo sanguineo") key = "grupo_sanguineo";
                     if (key === "celular") key = "extension";
