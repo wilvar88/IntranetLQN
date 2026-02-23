@@ -379,22 +379,61 @@
 
         // --- SISTEMA DE AUTO-RECUPERACIÓN DE DATOS ---
         async function checkAndFixUserData() {
-            if (user && user.nombre && user.documento) return; // Datos OK
+            // Si ya tenemos todo lo necesario, no hacemos nada
+            if (user && user.nombre && user.documento && user.ingreso && user.ingreso !== "N/A") return;
 
-            console.log("🛠️ Detectados datos incompletos. Intentando auto-reparación...");
+            console.log("🛠️ Detectados datos incompletos (Fecha de Ingreso u otros). Intentando auto-reparación...");
+
+            // 1. Intentar con la caché local de master_cache
             const cachedMaster = localStorage.getItem('master_cache');
             if (cachedMaster) {
                 const masterData = JSON.parse(cachedMaster);
-                const betterUser = masterData.find(u => String(u.documento) === String(user.documento));
-                if (betterUser) {
+                const betterUser = masterData.find(u =>
+                    String(u.documento || "").replace(/\D/g, '') === String(user.documento || "").replace(/\D/g, '')
+                );
+                if (betterUser && betterUser.ingreso && betterUser.ingreso !== "N/A") {
                     user = betterUser;
                     localStorage.setItem('currentUser', JSON.stringify(user));
-                    console.log("✅ Datos recuperados de caché local.");
+                    console.log("✅ Datos recuperados de caché local exitosamente.");
                     updateNavbar();
                     return;
                 }
             }
-            console.warn("❌ No se pudo auto-reparar desde caché.");
+
+            // 2. Si falla la caché, intentar una sincronización rápida con el Master (SOLO si estamos en certificados)
+            try {
+                const MASTER_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4dxNMqKVluRPiD6L-5OYPJUzYH4l87FRufvNS8BLWHfG6rSvB9y47uWOVnYDvRg/pub?output=csv";
+                const response = await fetch(MASTER_URL + "?t=" + Date.now());
+                const csv = await response.text();
+
+                // Función de parseo minimalista local para recuperación
+                const lines = csv.split(/\r?\n/).filter(l => l.trim());
+                if (lines.length > 0) {
+                    const headers = lines[0].toLowerCase().split(lines[0].includes(';') ? ';' : ',').map(h => h.trim());
+                    const rows = lines.slice(1).map(line => {
+                        const vals = line.split(line.includes(';') ? ';' : ',');
+                        let uObj = {};
+                        headers.forEach((h, i) => {
+                            let key = h;
+                            if (key.includes("fecha") && key.includes("ingreso") || key === "ingreso") key = "ingreso";
+                            if (key === "documento" || key === "cedula") key = "documento";
+                            if (key === "nombre" || key === "nombre completo") key = "nombre";
+                            uObj[key] = (vals[i] || "").replace(/^"|"$/g, '').trim();
+                        });
+                        return uObj;
+                    });
+
+                    const freshMe = rows.find(u => String(u.documento || "").replace(/\D/g, '') === String(user.documento || "").replace(/\D/g, ''));
+                    if (freshMe && freshMe.ingreso) {
+                        user = { ...user, ...freshMe };
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                        console.log("✅ Datos sincronizados directamente desde Master.");
+                        updateNavbar();
+                    }
+                }
+            } catch (err) {
+                console.error("Falla en recuperación remota:", err);
+            }
         }
         checkAndFixUserData();
 

@@ -292,10 +292,10 @@
                     if (key === "cargo" || key === "puesto") key = "cargo";
                     if (key === "área" || key === "area" || key === "ciudad") key = "area";
                     if (key === "días de vacaciones" || key === "dias de vacaciones" || key === "pasivo vacacional") key = "dias_vacaciones";
-                    if (key === "tipo id" || key === "tipo documento" || key === "tipo de documento" || key === "tipoid") key = "tipo_id";
-                    if (key === "fecha ingreso" || key === "ingreso" || key === "fecha de ingreso") key = "ingreso";
-                    if (key === "tipo contrato" || key === "tipo de contrato" || key === "contrato") key = "tipo_contrato";
-                    if (key === "fecha nacimiento" || key === "nacimiento") key = "cumple";
+                    if (key.includes("fecha") && key.includes("nacimiento") || key === "nacimiento") key = "cumple";
+                    if (key.includes("fecha") && key.includes("ingreso") || key === "ingreso") key = "ingreso";
+                    if (key.includes("contrato") || key === "tipo contrato") key = "tipo_contrato";
+                    if (key.includes("tipo") && (key.includes("id") || key.includes("documento")) || key === "tipoid") key = "tipo_id";
                     if (key === "género" || key === "genero") key = "genero";
 
                     let val = (values[i] || "").replace(/^"|"$/g, '').trim();
