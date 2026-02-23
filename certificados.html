@@ -291,13 +291,14 @@
                     <button class="btn-generate">Generar PDF</button>
                 </div>
                 <!-- Con Ingresos -->
-                <div class="option-card glass-effect disabled" title="Próximamente">
-                    <i class="fa-solid fa-file-invoice-dollar option-icon" style="color: #636e72;"></i>
+                <div class="option-card glass-effect" id="cardCertificadoSalarial"
+                    onclick="generateCertificate('con_ingresos')">
+                    <i class="fa-solid fa-file-invoice-dollar option-icon"></i>
                     <div class="option-info">
                         <h3>Certificado Laboral</h3>
                         <p>Con información de sueldo y compensaciones.</p>
                     </div>
-                    <span style="font-size: 0.7rem; color: var(--primary); font-weight: 600;">PRÓXIMAMENTE</span>
+                    <button class="btn-generate">Generar PDF</button>
                 </div>
             </div>
         </div>
@@ -424,6 +425,9 @@
                             if (key.includes("tipo") && (key.includes("id") || key.includes("documento"))) key = "tipo_id";
                             if (key.includes("contrato")) key = "tipo_contrato";
                             if (key === "cargo") key = "cargo";
+                            if (key.includes("salario") && key.includes("base")) key = "salario_base";
+                            if (key.includes("auxilio") && key.includes("no") && key.includes("prestacional")) key = "auxilio_no_prestacional";
+                            if (key.includes("salario") && key.includes("final")) key = "salario_final";
                             uObj[key] = (vals[i] || "").replace(/^"|"$/g, '').trim();
                         });
                         return uObj;
@@ -448,7 +452,7 @@
         checkAndFixUserData();
 
         async function generateCertificate(type) {
-            if (type !== 'sin_ingresos') return;
+            if (type !== 'sin_ingresos' && type !== 'con_ingresos') return;
 
             const overlay = document.getElementById('loadingOverlay');
             overlay.style.display = 'flex';
@@ -542,7 +546,8 @@
                     { text: ".", bold: false }
                 ];
 
-                const drawJustified = (segs, startY) => {
+                // --- FUNCIÓN UNIVERSAL DE DIBUJO (JUSTIFICADO Y ENVOLTURA) ---
+                const drawTextWrapped = (segs, startY, forceJustify = true) => {
                     let lines = [];
                     let currentLine = [];
                     let currentLineWidth = 0;
@@ -569,17 +574,19 @@
                     let y = startY;
                     lines.forEach(line => {
                         let x = margin;
+                        // Justificar solo si no es la última línea del párrafo y se solicita
                         const spaces = line.words.filter(w => w.isSpace);
-                        const extra = (!line.isLast && spaces.length > 0) ? (bodyWidth - line.width) / spaces.length : 0;
+                        const extra = (forceJustify && !line.isLast && spaces.length > 0) ? (bodyWidth - line.width) / spaces.length : 0;
 
                         line.words.forEach(word => {
                             firstPage.drawText(word.text, { x, y, size: bodySize, font: word.font, color: rgb(0, 0, 0) });
                             x += word.width + (word.isSpace ? extra : 0);
                         });
 
-                        const last = line.words[line.words.length - 1].text;
-                        if (last.includes(".") && line.isLast) {
-                            y -= (lineHeight * 2); // Punto aparte: Doble espacio exacto
+                        // Espaciado dinámico
+                        const lastWord = line.words[line.words.length - 1].text;
+                        if (lastWord.trim().endsWith(".") && line.isLast) {
+                            y -= (lineHeight * 1.5);
                         } else {
                             y -= lineHeight;
                         }
@@ -587,28 +594,97 @@
                     return y;
                 };
 
-                currentY = drawJustified(segments, currentY);
-                currentY -= 5; // Ajuste menor antes del contacto
+                // 1. Párrafo Principal
+                currentY = drawTextWrapped(segments, currentY);
 
-                const drawBoldLine = (parts, y) => {
-                    let cx = margin;
-                    parts.forEach(p => {
-                        const font = p.bold ? HelveticaBold : Helvetica;
-                        firstPage.drawText(p.text, { x: cx, y, size: bodySize, font, color: rgb(0, 0, 0) });
-                        cx += font.widthOfTextAtSize(p.text, bodySize);
+                // --- BLOQUE SALARIAL (Solo si el tipo es con_ingresos) ---
+                if (type === 'con_ingresos') {
+                    // AJUSTE MANUAL: Cambia este número para subir o bajar el bloque de salarios
+                    // Un número menor (ej: 5 o 10) sube el bloque. Un número mayor (ej: 30) lo baja.
+                    currentY -= 5;
+
+                    firstPage.drawText("Así mismo, se certifica que actualmente devenga la siguiente asignación salarial:", {
+                        x: margin, y: currentY, size: bodySize, font: Helvetica, color: rgb(0, 0, 0)
                     });
-                };
+                    currentY -= (lineHeight * 1.5);
 
-                drawBoldLine([{ text: "En caso de requerir información adicional favor comunicarse al número ", bold: false }, { text: "3178101913", bold: true }], currentY);
-                currentY -= lineHeight;
-                drawBoldLine([{ text: "Nini Valeria Hernández ", bold: true }, { text: " Líder de Talento Humano.", bold: false }], currentY);
+                    const formatMoney = (val) => {
+                        if (!val) return "0";
+                        // Limpieza profunda: 
+                        // 1. Si el valor viene con puntos y comas (ej: 1.800.000,00)
+                        // 2. Si viene solo con puntos como miles (ej: 1.800.000)
+                        // Convertimos a un String limpio extrae solo los dígitos
+                        let cleanValue = String(val).trim();
 
-                currentY -= 45;
-                firstPage.drawText(`Se expide a solicitud del interesado en Bogotá D.C; a los ${dia} días del mes de ${mes} del ${anio}.`, {
-                    x: margin, y: currentY, size: bodySize, font: Helvetica, color: rgb(0, 0, 0), maxWidth: bodyWidth
-                });
+                        // Si detectamos que es un formato con decimales al final (ej: ,00 o .00)
+                        // lo tratamos con cuidado, pero para certificados usualmente son enteros.
+                        // El enfoque más seguro para Colombia: quitar puntos de miles.
+                        if (cleanValue.includes('.') && (cleanValue.match(/\./g) || []).length > 1) {
+                            cleanValue = cleanValue.replace(/\./g, '');
+                        } else if (cleanValue.includes(',') && (cleanValue.match(/,/g) || []).length > 1) {
+                            cleanValue = cleanValue.replace(/,/g, '');
+                        }
 
-                currentY -= (lineHeight * 6); // Doble espacio antes de Cordialmente
+                        // Fallback radical: si hay un punto/coma que parece decimal en un número grande
+                        // lo eliminamos si el usuario no usa decimales reales en su master.
+                        // Para simplificar y dar el resultado esperado: 
+                        // tomamos solo los números y si hay algo después del último separador, lo evaluamos.
+
+                        // EXTRACCIÓN SIMPLE Y EFECTIVA PARA NÚMEROS DE NÓMINA:
+                        const basicNo = cleanValue.replace(/[^\d]/g, '');
+                        const num = parseInt(basicNo) || 0;
+
+                        return num.toLocaleString('es-CO');
+                    };
+
+                    const drawSalaryLine = (label, value, y) => {
+                        // Dibujamos el concepto en NEGRILLA
+                        firstPage.drawText(label, { x: margin, y, size: bodySize, font: HelveticaBold, color: rgb(0, 0, 0) });
+                        // Dibujamos el valor en NORMAL
+                        const labelWidth = HelveticaBold.widthOfTextAtSize(label, bodySize);
+                        firstPage.drawText(` $ ${formatMoney(value)}`, { x: margin + labelWidth, y, size: bodySize, font: Helvetica, color: rgb(0, 0, 0) });
+                    };
+
+                    // Dibujo de líneas salariales
+                    drawSalaryLine("Salario Base:", user.salario_base || "0", currentY);
+                    currentY -= lineHeight;
+
+                    // Lógica Condicional: Ocultar Auxilio si es 0, - o vacío
+                    const auxVal = String(user.auxilio_no_prestacional || "0").trim();
+                    if (auxVal !== "0" && auxVal !== "-" && auxVal !== "") {
+                        drawSalaryLine("Auxilio No Prestacional:", auxVal, currentY);
+                        currentY -= lineHeight;
+                    }
+
+                    drawSalaryLine("Salario Final:", user.salario_final || "0", currentY);
+                    currentY -= 15;
+                }
+
+                currentY -= 10;
+
+                // 2. Línea de contacto (Ahora con envoltura automática)
+                currentY = drawTextWrapped([
+                    { text: "En caso de requerir información adicional favor comunicarse al número ", bold: false },
+                    { text: "3178101913", bold: true },
+                    { text: " ", bold: false },
+                    { text: "Nini Valeria Hernández", bold: true },
+                    { text: " Líder de Talento Humano.", bold: false }
+                ], currentY, false); // false para no forzar justificado en esta línea corta
+
+                currentY -= 10;
+
+                // 3. Línea de expedición (Ahora con envoltura automática)
+                currentY = drawTextWrapped([
+                    { text: "Se expide a solicitud del interesado en Bogotá D.C; a los ", bold: false },
+                    { text: String(dia), bold: true },
+                    { text: " días del mes de ", bold: false },
+                    { text: mes, bold: true },
+                    { text: " del ", bold: false },
+                    { text: String(anio), bold: true },
+                    { text: ".", bold: false }
+                ], currentY, false);
+
+                currentY -= (lineHeight * 6); // Espacio para firma (Cordialmente)
                 firstPage.drawText("Cordialmente,", { x: margin, y: currentY, size: bodySize, font: Helvetica, color: rgb(0, 0, 0) });
 
                 const pdfBytes = await pdfDoc.save();
