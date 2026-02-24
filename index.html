@@ -661,6 +661,170 @@
         .birthday-today h4::after {
             content: ' 🎉';
         }
+
+        /* --- ESTILOS AVISOS IMPORTANTES (MODAL) --- */
+        .avisos-modal {
+            /* AJUSTE DE ESCALA: Cambia 550px por el ancho que desees */
+            max-width: 550px !important;
+            padding: 0 !important;
+            overflow: visible;
+            /* Cambiado a visible para dejar ver la 'X' */
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+            transition: transform 0.3s ease;
+        }
+
+        .avisos-container {
+            position: relative;
+            width: 100%;
+            /* PROPORCIÓN DEL FLYER: 141.4% es para A4 (vertical) */
+            padding-top: 141.4%;
+            background: rgba(255, 255, 255, 0.2);
+            /* Efecto Glass */
+            backdrop-filter: blur(15px);
+            /* Desenfoque de fondo */
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 24px;
+            /* Bordes más redondeados */
+            overflow: hidden;
+            /* Borde delgado y pulido */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Spinner de carga para flyers */
+        .aviso-loader {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(233, 0, 133, 0.1);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .avisos-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            /* Para alineación horizontal */
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Transición suave */
+            will-change: transform;
+        }
+
+        .aviso-slide {
+            min-width: 100%;
+            /* Cada slide ocupa todo el ancho */
+            height: 100%;
+            position: relative;
+        }
+
+        .aviso-slide.active {
+            /* Ya no ocultamos slides, solo movemos el contenedor */
+        }
+
+        .aviso-slide iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .aviso-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            /* Tamaño flechas ligeramente más pequeño */
+            height: 40px;
+            /* Color insignia de la intranet con transparencia */
+            background: rgba(233, 0, 133, 0.7);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .aviso-nav:hover {
+            background: var(--primary);
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 0 15px rgba(233, 0, 133, 0.4);
+        }
+
+        .aviso-prev {
+            left: 10px;
+            /* Ajuste margen flecha izquierda */
+        }
+
+        .aviso-next {
+            right: 10px;
+            /* Ajuste margen flecha derecha */
+        }
+
+        .aviso-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .aviso-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .aviso-dot.active {
+            background: var(--primary);
+            transform: scale(1.3);
+        }
+
+        .close-avisos {
+            position: absolute;
+            /* AJUSTE DE LA X: Cambia estos valores si quieres moverla */
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: 0.3s;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .close-avisos:hover {
+            color: var(--primary);
+            transform: rotate(90deg) scale(1.2);
+        }
     </style>
 
     <!-- Modal Soporte -->
@@ -783,6 +947,21 @@
                 </div>
                 <button type="submit" class="btn-submit">Enviar Solicitud</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Avisos Importantes -->
+    <div id="modalAvisos" class="modal-overlay">
+        <div class="modal-card avisos-modal">
+            <span class="close-avisos" id="closeAvisos">&times;</span>
+            <div class="avisos-container">
+                <div class="avisos-wrapper" id="avisosWrapper">
+                    <!-- Los slides se cargarán dinámicamente -->
+                </div>
+                <div class="aviso-nav aviso-prev" id="avisoPrev"><i class="fa-solid fa-chevron-left"></i></div>
+                <div class="aviso-nav aviso-next" id="avisoNext"><i class="fa-solid fa-chevron-right"></i></div>
+                <div class="aviso-dots" id="avisoDots"></div>
+            </div>
         </div>
     </div>
 
@@ -1029,7 +1208,7 @@
         setInterval(() => {
             currentSlide = (currentSlide + 1) % slides.length;
             showSlide(currentSlide);
-        }, 5000);
+        }, 3000);
 
         dots.forEach((dot, idx) => {
             dot.addEventListener('click', () => {
@@ -1237,7 +1416,195 @@
         window.onclick = (e) => {
             if (e.target == modalSoporte) closeSoporteModal();
             if (e.target == modalVacaciones) modalVacaciones.style.display = 'none';
+            if (e.target == document.getElementById('modalAvisos')) closeAvisos();
         };
+
+        // --- LÓGICA DE AVISOS IMPORTANTES ---
+        // URL del Script de Google (Pega aquí la URL que obtengas al desplegar como Web App)
+        const FLYERS_DRIVE_API = "https://script.google.com/macros/s/AKfycbzBmznlhnuLRC-tEVAitKzYIasWXpV-66pJDbXj2JHfwLwbz9_pAEpCR1Rj6xayrzI/exec";
+
+        let currentAviso = 0;
+        let avisosInterval;
+        let listaAvisos = [];
+
+        async function initAvisos() {
+            // --- MODO DE PRUEBAS ---
+            const DEBUG_AVISOS = false;
+
+            // Soporte para resetear por URL: ?resetAvisos=true
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('resetAvisos') === 'true') {
+                sessionStorage.removeItem('avisosVistos');
+                sessionStorage.removeItem('listaAvisosCache');
+                console.log("Reiniciando avisos por parámetro URL...");
+            }
+
+            // --- PERSISTENCIA DE SESIÓN ---
+            // Si ya existe la marca, no hacemos nada.
+            if (!DEBUG_AVISOS && sessionStorage.getItem('avisosVistos')) {
+                console.log("Avisos ya vistos en esta sesión. No se mostrarán.");
+                return;
+            }
+
+            // Si no existe, la ponemos AHORA para bloquear futuras cargas en esta sesión.
+            if (!DEBUG_AVISOS) {
+                sessionStorage.setItem('avisosVistos', 'true');
+                console.log("Marcando avisos como vistos para el resto de la sesión.");
+            }
+
+            console.log("Iniciando Avisos Importantes...");
+
+            // --- INTENTO DE CARGAR DESDE CACHE (INSTANTÁNEO) ---
+            const cachedList = sessionStorage.getItem('listaAvisosCache');
+            if (cachedList) {
+                listaAvisos = JSON.parse(cachedList);
+                console.log("Cargando lista desde cache...");
+                mostrarAvisosUI();
+                fetchListaDrive(); // Actualizar cache en segundo plano
+                return;
+            }
+
+            // Si no hay cache, cargamos de Drive
+            fetchListaDrive().then(() => {
+                if (listaAvisos.length > 0) mostrarAvisosUI();
+            });
+        }
+
+        async function fetchListaDrive() {
+            if (!FLYERS_DRIVE_API) {
+                await fetchListaLocal();
+                return;
+            }
+
+            try {
+                const response = await fetch(FLYERS_DRIVE_API);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.length > 0) {
+                        listaAvisos = data.map(f => ({
+                            // Revertimos al formato /preview que es el estándar más compatible
+                            url: `https://drive.google.com/file/d/${f.id}/preview`,
+                            name: f.name
+                        }));
+                        sessionStorage.setItem('listaAvisosCache', JSON.stringify(listaAvisos));
+                        console.log(`✅ Lista de Drive obtenida: ${listaAvisos.length} flyers.`);
+                    }
+                }
+            } catch (e) {
+                console.warn("Fallo carga de Drive, intentando local:", e);
+                await fetchListaLocal();
+            }
+        }
+
+        async function fetchListaLocal() {
+            if (listaAvisos.length > 0) return; // Ya tenemos datos (quizás de cache)
+            console.log("Buscando avisos locales...");
+            let i = 1;
+            let foundAll = false;
+            while (!foundAll) {
+                try {
+                    const response = await fetch(`flyers/${i}.pdf`, { method: 'HEAD' });
+                    if (response.ok) {
+                        listaAvisos.push({ url: `flyers/${i}.pdf`, name: `${i}.pdf` });
+                        i++;
+                    } else { foundAll = true; }
+                } catch (e) { foundAll = true; }
+                if (i > 10) foundAll = true;
+            }
+            if (listaAvisos.length > 0) sessionStorage.setItem('listaAvisosCache', JSON.stringify(listaAvisos));
+        }
+
+        function mostrarAvisosUI() {
+            if (listaAvisos.length > 0) {
+                renderAvisos();
+                const modal = document.getElementById('modalAvisos');
+                if (modal) {
+                    modal.style.display = 'flex';
+                    startAvisosTimer();
+                    sessionStorage.setItem('avisosVistos', 'true');
+                }
+            }
+        }
+
+        function renderAvisos() {
+            const wrapper = document.getElementById('avisosWrapper');
+            const dots = document.getElementById('avisoDots');
+
+            wrapper.innerHTML = ""; // Limpiar antes de renderizar
+            dots.innerHTML = "";
+
+            listaAvisos.forEach((aviso, index) => {
+                // Crear Slide
+                const slide = document.createElement('div');
+                slide.className = `aviso-slide`;
+                // Añadimos un spinner que desaparece cuando el iframe carga
+                slide.innerHTML = `
+                    <div class="aviso-loader"></div>
+                    <iframe src="${aviso.url}" onload="this.previousElementSibling.style.display='none'"></iframe>
+                `;
+                wrapper.appendChild(slide);
+
+                // Crear Dot
+                const dot = document.createElement('div');
+                dot.className = `aviso-dot ${index === 0 ? 'active' : ''}`;
+                dot.onclick = () => goToAviso(index);
+                dots.appendChild(dot);
+            });
+        }
+
+        function showAviso(index) {
+            const wrapper = document.getElementById('avisosWrapper');
+            const dots = document.querySelectorAll('.aviso-dot');
+
+            dots[currentAviso].classList.remove('active');
+            currentAviso = (index + listaAvisos.length) % listaAvisos.length;
+
+            // TRANSICIÓN LATERAL: Movemos el wrapper según el índice actual
+            const offset = -currentAviso * 100;
+            wrapper.style.transform = `translateX(${offset}%)`;
+
+            dots[currentAviso].classList.add('active');
+        }
+
+        function nextAviso() {
+            showAviso(currentAviso + 1);
+        }
+
+        function prevAviso() {
+            showAviso(currentAviso - 1);
+        }
+
+        function goToAviso(index) {
+            clearInterval(avisosInterval);
+            showAviso(index);
+            startAvisosTimer();
+        }
+
+        function startAvisosTimer() {
+            avisosInterval = setInterval(nextAviso, 8000);
+        }
+
+        function closeAvisos() {
+            document.getElementById('modalAvisos').style.display = 'none';
+            clearInterval(avisosInterval);
+        }
+
+        document.getElementById('avisoNext').onclick = () => {
+            clearInterval(avisosInterval);
+            nextAviso();
+            startAvisosTimer();
+        };
+
+        document.getElementById('avisoPrev').onclick = () => {
+            clearInterval(avisosInterval);
+            prevAviso();
+            startAvisosTimer();
+        };
+
+        document.getElementById('closeAvisos').onclick = closeAvisos;
+
+        // Iniciar de inmediato para máxima velocidad
+        initAvisos();
     </script>
 </body>
 
